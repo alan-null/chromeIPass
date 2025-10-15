@@ -1,0 +1,16 @@
+{
+    "editor.formatOnSave": true,
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features",
+    },
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "vscode.css-language-features"
+    },
+    "html.format.wrapLineLength": 0
+}

@@ -1,35 +1,35 @@
 var keepass = {};
 
-keepass.associated = {"value": false, "hash": null};
+keepass.associated = { "value": false, "hash": null };
 keepass.isDatabaseClosed = false;
 keepass.isKeePassHttpAvailable = false;
 keepass.isEncryptionKeyUnrecognized = false;
-keepass.currentKeePassHttp = {"version": 0, "versionParsed": 0};
-keepass.latestKeePassHttp = (typeof(localStorage.latestKeePassHttp) == 'undefined') ? {"version": 0, "versionParsed": 0, "lastChecked": null} : JSON.parse(localStorage.latestKeePassHttp);
+keepass.currentKeePassHttp = { "version": 0, "versionParsed": 0 };
+keepass.latestKeePassHttp = (typeof (localStorage.latestKeePassHttp) == 'undefined') ? { "version": 0, "versionParsed": 0, "lastChecked": null } : JSON.parse(localStorage.latestKeePassHttp);
 keepass.keySize = 8; // wtf? stupid cryptoHelpers
 keepass.pluginUrlDefault = "http://localhost:19455/";
 keepass.latestVersionUrl = "https://passifox.appspot.com/kph/latest-version.txt";
 keepass.cacheTimeout = 30 * 1000; // milliseconds
 keepass.databaseHash = "no-hash"; //no-hash = keepasshttp is too old and does not return a hash value
-keepass.keyRing = (typeof(localStorage.keyRing) == 'undefined') ? {} : JSON.parse(localStorage.keyRing);
+keepass.keyRing = (typeof (localStorage.keyRing) == 'undefined') ? {} : JSON.parse(localStorage.keyRing);
 keepass.keyId = "chromeipass-cryptokey-name";
 keepass.keyBody = "chromeipass-key";
 keepass.to_s = cryptoHelpers.convertByteArrayToString;
 keepass.to_b = cryptoHelpers.convertStringToByteArray;
 
 
-keepass.addCredentials = function(callback, tab, username, password, url) {
+keepass.addCredentials = function (callback, tab, username, password, url) {
 	keepass.updateCredentials(callback, tab, null, username, password, url);
 }
 
-keepass.updateCredentials = function(callback, tab, entryId, username, password, url) {
+keepass.updateCredentials = function (callback, tab, entryId, username, password, url) {
 	page.debug("keepass.updateCredentials(callback, {1}, {2}, {3}, [password], {4})", tab.id, entryId, username, url);
 
 	// unset error message
 	page.tabs[tab.id].errorMessage = null;
 
 	// is browser associated to keepass?
-	if(!keepass.testAssociation(tab)) {
+	if (!keepass.testAssociation(tab)) {
 		browserAction.showDefault(null, tab);
 		callback("error");
 		return;
@@ -51,7 +51,7 @@ keepass.updateCredentials = function(callback, tab, entryId, username, password,
 	request.Url = keepass.encrypt(url, key, iv);
 	request.SubmitUrl = keepass.encrypt(url, key, iv);
 
-	if(entryId) {
+	if (entryId) {
 		request.Uuid = keepass.encrypt(entryId, key, iv);
 	}
 
@@ -62,7 +62,7 @@ keepass.updateCredentials = function(callback, tab, entryId, username, password,
 
 	// verify response
 	var code = "error";
-	if(keepass.checkStatus(status, tab)) {
+	if (keepass.checkStatus(status, tab)) {
 		var r = JSON.parse(response);
 		if (keepass.verifyResponse(r, key, id)) {
 			code = "success";
@@ -82,9 +82,9 @@ keepass.retrieveCredentials = function (callback, tab, url, submiturl, forceCall
 	page.tabs[tab.id].errorMessage = null;
 
 	// is browser associated to keepass?
-	if(!keepass.testAssociation(tab, triggerUnlock)) {
+	if (!keepass.testAssociation(tab, triggerUnlock)) {
 		browserAction.showDefault(null, tab);
-		if(forceCallback) {
+		if (forceCallback) {
 			callback([]);
 		}
 		return;
@@ -102,7 +102,7 @@ keepass.retrieveCredentials = function (callback, tab, url, submiturl, forceCall
 	var iv = request.Nonce;
 	request.Url = keepass.encrypt(url, key, iv);
 
-	if(submiturl) {
+	if (submiturl) {
 		request.SubmitUrl = keepass.encrypt(submiturl, key, iv);
 	}
 
@@ -113,7 +113,7 @@ keepass.retrieveCredentials = function (callback, tab, url, submiturl, forceCall
 	var entries = [];
 
 	// verify response
-	if(keepass.checkStatus(status, tab)) {
+	if (keepass.checkStatus(status, tab)) {
 		var r = JSON.parse(response);
 
 		keepass.setCurrentKeePassHttpVersion(r.Version);
@@ -125,7 +125,7 @@ keepass.retrieveCredentials = function (callback, tab, url, submiturl, forceCall
 			}
 			entries = r.Entries;
 			keepass.updateLastUsed(keepass.databaseHash);
-			if(entries.length == 0) {
+			if (entries.length == 0) {
 				//questionmark-icon is not triggered, so we have to trigger for the normal symbol
 				browserAction.showDefault(null, tab);
 			}
@@ -145,15 +145,15 @@ keepass.retrieveCredentials = function (callback, tab, url, submiturl, forceCall
 
 keepass.generatePassword = function (callback, tab, forceCallback) {
 	// is browser associated to keepass?
-	if(!keepass.testAssociation(tab)) {
+	if (!keepass.testAssociation(tab)) {
 		browserAction.showDefault(null, tab);
-		if(forceCallback) {
+		if (forceCallback) {
 			callback([]);
 		}
 		return;
 	}
 
-	if(keepass.currentKeePassHttp.versionParsed < 1400) {
+	if (keepass.currentKeePassHttp.versionParsed < 1400) {
 		callback([]);
 		return;
 	}
@@ -173,7 +173,7 @@ keepass.generatePassword = function (callback, tab, forceCallback) {
 	var passwords = [];
 
 	// verify response
-	if(keepass.checkStatus(status, tab)) {
+	if (keepass.checkStatus(status, tab)) {
 		var r = JSON.parse(response);
 
 		keepass.setCurrentKeePassHttpVersion(r.Version);
@@ -181,7 +181,7 @@ keepass.generatePassword = function (callback, tab, forceCallback) {
 		if (keepass.verifyResponse(r, key, id)) {
 			var rIv = r.Nonce;
 
-			if(r.Entries) {
+			if (r.Entries) {
 				for (var i = 0; i < r.Entries.length; i++) {
 					keepass.decryptEntry(r.Entries[i], key, rIv);
 				}
@@ -203,10 +203,10 @@ keepass.generatePassword = function (callback, tab, forceCallback) {
 	callback(passwords);
 }
 
-keepass.copyPassword = function(callback, tab, password) {
+keepass.copyPassword = function (callback, tab, password) {
 	var bg = chrome.extension.getBackgroundPage();
 	var c2c = bg.document.getElementById("copy2clipboard");
-	if(!c2c) {
+	if (!c2c) {
 		var input = document.createElement('input');
 		input.type = "text";
 		input.id = "copy2clipboard";
@@ -221,14 +221,14 @@ keepass.copyPassword = function(callback, tab, password) {
 	callback(true);
 }
 
-keepass.associate = function(callback, tab) {
-	if(keepass.isAssociated()) {
+keepass.associate = function (callback, tab) {
+	if (keepass.isAssociated()) {
 		return;
 	}
 
 	keepass.getDatabaseHash(tab);
 
-	if(keepass.isDatabaseClosed || !keepass.isKeePassHttpAvailable) {
+	if (keepass.isDatabaseClosed || !keepass.isKeePassHttpAvailable) {
 		return;
 	}
 
@@ -246,18 +246,18 @@ keepass.associate = function(callback, tab) {
 
 	var result = keepass.send(request);
 
-	if(keepass.checkStatus(result[0], tab)) {
+	if (keepass.checkStatus(result[0], tab)) {
 		var r = JSON.parse(result[1]);
 
-		if(r.Version) {
+		if (r.Version) {
 			keepass.currentKeePassHttp = {
 				"version": r.Version,
-				"versionParsed": parseInt(r.Version.replace(/\./g,""))
+				"versionParsed": parseInt(r.Version.replace(/\./g, ""))
 			};
 		}
 
 		var id = r.Id;
-		if(!keepass.verifyResponse(r, key)) {
+		if (!keepass.verifyResponse(r, key)) {
 			page.tabs[tab.id].errorMessage = "KeePass association failed, try again.";
 		}
 		else {
@@ -270,18 +270,18 @@ keepass.associate = function(callback, tab) {
 	}
 }
 
-keepass.isConfigured = function() {
-	if(typeof(keepass.databaseHash) == "undefined") {
+keepass.isConfigured = function () {
+	if (typeof (keepass.databaseHash) == "undefined") {
 		keepass.getDatabaseHash();
 	}
 	return (keepass.databaseHash in keepass.keyRing);
 }
 
-keepass.isAssociated = function() {
+keepass.isAssociated = function () {
 	return (keepass.associated.value && keepass.associated.hash && keepass.associated.hash == keepass.databaseHash);
 }
 
-keepass.send = function(request) {
+keepass.send = function (request) {
 	var xhr = new XMLHttpRequest();
 	xhr.open("POST", keepass.getPluginUrl(), false);
 	xhr.setRequestHeader("Content-Type", "application/json");
@@ -302,27 +302,27 @@ keepass.checkStatus = function (status, tab) {
 	keepass.isDatabaseClosed = false;
 	keepass.isKeePassHttpAvailable = true;
 
-	if(tab && page.tabs[tab.id]) {
+	if (tab && page.tabs[tab.id]) {
 		delete page.tabs[tab.id].errorMessage;
 	}
 	if (!success) {
 		keepass.associated.value = false;
 		keepass.associated.hash = null;
-		if(tab && page.tabs[tab.id]) {
+		if (tab && page.tabs[tab.id]) {
 			page.tabs[tab.id].errorMessage = "Unknown error: " + status;
 		}
-		console.log("Error: "+ status);
+		console.log("Error: " + status);
 		if (status == 503) {
 			keepass.isDatabaseClosed = true;
 			console.log("KeePass database is not opened");
-			if(tab && page.tabs[tab.id]) {
+			if (tab && page.tabs[tab.id]) {
 				page.tabs[tab.id].errorMessage = "KeePass database is not opened.";
 			}
 		}
 		else if (status == 0) {
 			keepass.isKeePassHttpAvailable = false;
 			console.log("Could not connect to keepass");
-			if(tab && page.tabs[tab.id]) {
+			if (tab && page.tabs[tab.id]) {
 				page.tabs[tab.id].errorMessage = "Is KeePassHttp installed and is KeePass running?";
 			}
 		}
@@ -333,20 +333,20 @@ keepass.checkStatus = function (status, tab) {
 	return success;
 }
 
-keepass.convertKeyToKeyRing = function() {
-	if(keepass.keyId in localStorage && keepass.keyBody in localStorage && !("keyRing" in localStorage)) {
+keepass.convertKeyToKeyRing = function () {
+	if (keepass.keyId in localStorage && keepass.keyBody in localStorage && !("keyRing" in localStorage)) {
 		var hash = keepass.getDatabaseHash(null);
 		keepass.saveKey(hash, localStorage[keepass.keyId], localStorage[keepass.keyBody]);
 	}
 
-	if("keyRing" in localStorage) {
+	if ("keyRing" in localStorage) {
 		delete localStorage[keepass.keyId];
 		delete localStorage[keepass.keyBody];
 	}
 }
 
-keepass.saveKey = function(hash, id, key) {
-	if(!(hash in keepass.keyRing)) {
+keepass.saveKey = function (hash, id, key) {
+	if (!(hash in keepass.keyRing)) {
 		keepass.keyRing[hash] = {
 			"id": id,
 			"key": key,
@@ -362,43 +362,43 @@ keepass.saveKey = function(hash, id, key) {
 	localStorage.keyRing = JSON.stringify(keepass.keyRing);
 }
 
-keepass.updateLastUsed = function(hash) {
-	if((hash in keepass.keyRing)) {
+keepass.updateLastUsed = function (hash) {
+	if ((hash in keepass.keyRing)) {
 		keepass.keyRing[hash].lastUsed = new Date();
 		localStorage.keyRing = JSON.stringify(keepass.keyRing);
 	}
 }
 
-keepass.deleteKey = function(hash) {
+keepass.deleteKey = function (hash) {
 	delete keepass.keyRing[hash];
 	localStorage.keyRing = JSON.stringify(keepass.keyRing);
 }
 
-keepass.getIconColor = function() {
+keepass.getIconColor = function () {
 	return ((keepass.databaseHash in keepass.keyRing) && keepass.keyRing[keepass.databaseHash].icon) ? keepass.keyRing[keepass.databaseHash].icon : "blue";
 }
 
-keepass.getPluginUrl = function() {
-	if(page.settings.hostname && page.settings.port) {
+keepass.getPluginUrl = function () {
+	if (page.settings.hostname && page.settings.port) {
 		return "http://" + page.settings.hostname + ":" + page.settings.port;
 	}
 	return keepass.pluginUrlDefault;
 }
 
-keepass.setCurrentKeePassHttpVersion = function(version) {
-	if(version) {
+keepass.setCurrentKeePassHttpVersion = function (version) {
+	if (version) {
 		keepass.currentKeePassHttp = {
 			"version": version,
-			"versionParsed": parseInt(version.replace(/\./g,""))
+			"versionParsed": parseInt(version.replace(/\./g, ""))
 		};
 	}
 }
 
-keepass.keePassHttpUpdateAvailable = function() {
-	if(page.settings.checkUpdateKeePassHttp && page.settings.checkUpdateKeePassHttp > 0) {
+keepass.keePassHttpUpdateAvailable = function () {
+	if (page.settings.checkUpdateKeePassHttp && page.settings.checkUpdateKeePassHttp > 0) {
 		var lastChecked = (keepass.latestKeePassHttp.lastChecked) ? new Date(keepass.latestKeePassHttp.lastChecked) : new Date("11/21/1986");
-		var daysSinceLastCheck = Math.floor(((new Date()).getTime()-lastChecked.getTime())/86400000);
-		if(daysSinceLastCheck >= page.settings.checkUpdateKeePassHttp) {
+		var daysSinceLastCheck = Math.floor(((new Date()).getTime() - lastChecked.getTime()) / 86400000);
+		if (daysSinceLastCheck >= page.settings.checkUpdateKeePassHttp) {
 			keepass.checkForNewKeePassHttpVersion();
 		}
 	}
@@ -406,18 +406,18 @@ keepass.keePassHttpUpdateAvailable = function() {
 	return (keepass.currentKeePassHttp.versionParsed > 0 && keepass.currentKeePassHttp.versionParsed < keepass.latestKeePassHttp.versionParsed);
 }
 
-keepass.checkForNewKeePassHttpVersion = function() {
+keepass.checkForNewKeePassHttpVersion = function () {
 	var xhr = new XMLHttpRequest();
 	xhr.open("GET", keepass.latestVersionUrl, false);
 	xhr.setRequestHeader("Content-Type", "application/json");
 	try {
 		xhr.send();
 		var $version = xhr.responseText;
-		if($version.substring(0, 1) == ":") {
+		if ($version.substring(0, 1) == ":") {
 			$version = $version.substring(xhr.responseText.indexOf("KeePassHttp") + 12);
 			$version = $version.substring(0, $version.indexOf(":") - 1);
 			keepass.latestKeePassHttp.version = $version;
-			keepass.latestKeePassHttp.versionParsed = parseInt($version.replace(/\./g,""));
+			keepass.latestKeePassHttp.versionParsed = parseInt($version.replace(/\./g, ""));
 		}
 		else {
 			$version = -1;
@@ -427,7 +427,7 @@ keepass.checkForNewKeePassHttpVersion = function() {
 		console.log("Error: " + e);
 	}
 
-	if($version != -1) {
+	if ($version != -1) {
 		localStorage.latestKeePassHttp = JSON.stringify(keepass.latestKeePassHttp);
 	}
 	keepass.latestKeePassHttp.lastChecked = new Date();
@@ -436,11 +436,11 @@ keepass.checkForNewKeePassHttpVersion = function() {
 keepass.testAssociation = function (tab, triggerUnlock) {
 	keepass.getDatabaseHash(tab, triggerUnlock);
 
-	if(keepass.isDatabaseClosed || !keepass.isKeePassHttpAvailable) {
+	if (keepass.isDatabaseClosed || !keepass.isKeePassHttpAvailable) {
 		return false;
 	}
 
-	if(keepass.isAssociated()) {
+	if (keepass.isAssociated()) {
 		return true;
 	}
 
@@ -450,7 +450,7 @@ keepass.testAssociation = function (tab, triggerUnlock) {
 	};
 	var verifier = keepass.setVerifier(request);
 
-	if(!verifier) {
+	if (!verifier) {
 		keepass.associated.value = false;
 		keepass.associated.hash = null;
 		return false;
@@ -460,20 +460,20 @@ keepass.testAssociation = function (tab, triggerUnlock) {
 	var status = result[0];
 	var response = result[1];
 
-	if(keepass.checkStatus(status, tab)) {
+	if (keepass.checkStatus(status, tab)) {
 		var r = JSON.parse(response);
 		var id = verifier[0];
 		var key = verifier[1];
 
-		if(r.Version) {
+		if (r.Version) {
 			keepass.currentKeePassHttp = {
 				"version": r.Version,
-				"versionParsed": parseInt(r.Version.replace(/\./g,""))
+				"versionParsed": parseInt(r.Version.replace(/\./g, ""))
 			};
 		}
 
-	keepass.isEncryptionKeyUnrecognized = false;
-		if(!keepass.verifyResponse(r, key, id)) {
+		keepass.isEncryptionKeyUnrecognized = false;
+		if (!keepass.verifyResponse(r, key, id)) {
 			var hash = r.Hash || 0;
 			keepass.deleteKey(hash);
 			keepass.isEncryptionKeyUnrecognized = true;
@@ -482,7 +482,7 @@ keepass.testAssociation = function (tab, triggerUnlock) {
 			keepass.associated.value = false;
 			keepass.associated.hash = null;
 		}
-		else if(!keepass.isAssociated()) {
+		else if (!keepass.isAssociated()) {
 			console.log("Association was not successful");
 			page.tabs[tab.id].errorMessage = "Association was not successful.";
 		}
@@ -500,7 +500,7 @@ keepass.getDatabaseHash = function (tab, triggerUnlock) {
 	var oldDatabaseHash = keepass.databaseHash;
 
 	var result = keepass.send(request);
-	if(keepass.checkStatus(result[0], tab)) {
+	if (keepass.checkStatus(result[0], tab)) {
 		var response = JSON.parse(result[1]);
 		keepass.setCurrentKeePassHttpVersion(response.Version);
 		keepass.databaseHash = response.Hash || "no-hash";
@@ -509,7 +509,7 @@ keepass.getDatabaseHash = function (tab, triggerUnlock) {
 		keepass.databaseHash = "no-hash";
 	}
 
-	if(oldDatabaseHash && oldDatabaseHash != keepass.databaseHash) {
+	if (oldDatabaseHash && oldDatabaseHash != keepass.databaseHash) {
 		//console.log("clear association (old db hash != new db hash ==> " + oldDatabaseHash + " != " + keepass.databaseHash);
 		keepass.associated.value = false;
 		keepass.associated.hash = null;
@@ -518,11 +518,11 @@ keepass.getDatabaseHash = function (tab, triggerUnlock) {
 	return keepass.databaseHash;
 }
 
-keepass.setVerifier = function(request, inputKey) {
+keepass.setVerifier = function (request, inputKey) {
 	var key = inputKey || null;
 	var id = null;
 
-	if(!key) {
+	if (!key) {
 		var info = keepass.getCryptoKey();
 		if (info == null) {
 			return null;
@@ -531,7 +531,7 @@ keepass.setVerifier = function(request, inputKey) {
 		key = info[1];
 	}
 
-	if(id) {
+	if (id) {
 		request.Id = id;
 	}
 
@@ -544,7 +544,7 @@ keepass.setVerifier = function(request, inputKey) {
 	return [id, key];
 }
 
-keepass.verifyResponse = function(response, key, id) {
+keepass.verifyResponse = function (response, key, id) {
 	keepass.associated.value = response.Success;
 	if (!response.Success) {
 		keepass.associated.hash = null;
@@ -558,7 +558,7 @@ keepass.verifyResponse = function(response, key, id) {
 
 	keepass.associated.value = (value == iv);
 
-	if(id) {
+	if (id) {
 		keepass.associated.value = (keepass.associated.value && id == response.Id);
 	}
 
@@ -568,34 +568,34 @@ keepass.verifyResponse = function(response, key, id) {
 
 }
 
-keepass.b64e = function(d) {
+keepass.b64e = function (d) {
 	return btoa(keepass.to_s(d));
 }
 
-keepass.b64d = function(d) {
+keepass.b64d = function (d) {
 	return keepass.to_b(atob(d));
 }
 
-keepass.getCryptoKey = function() {
-	if(!(keepass.databaseHash in keepass.keyRing)) {
+keepass.getCryptoKey = function () {
+	if (!(keepass.databaseHash in keepass.keyRing)) {
 		return null;
 	}
 
 	var id = keepass.keyRing[keepass.databaseHash].id;
 	var key = null;
 
-	if(id) {
+	if (id) {
 		key = keepass.keyRing[keepass.databaseHash].key;
 	}
 
 	return key ? [id, key] : null;
 }
 
-keepass.setCryptoKey = function(id, key) {
+keepass.setCryptoKey = function (id, key) {
 	keepass.saveKey(keepass.databaseHash, id, key);
 }
 
-keepass.encrypt = function(input, key, iv) {
+keepass.encrypt = function (input, key, iv) {
 	return keepass.b64e(
 		slowAES.encrypt(
 			keepass.to_b(input),
@@ -606,13 +606,13 @@ keepass.encrypt = function(input, key, iv) {
 	);
 }
 
-keepass.decrypt = function(input, key, iv, toStr) {
+keepass.decrypt = function (input, key, iv, toStr) {
 	var output = slowAES.decrypt(
-			keepass.b64d(input),
-			slowAES.modeOfOperation.CBC,
-			keepass.b64d(key),
-			keepass.b64d(iv)
-		);
+		keepass.b64d(input),
+		slowAES.modeOfOperation.CBC,
+		keepass.b64d(key),
+		keepass.b64d(iv)
+	);
 
 	return toStr ? keepass.to_s(output) : output;
 }
@@ -623,8 +623,8 @@ keepass.decryptEntry = function (e, key, iv) {
 	e.Login = UTF8.decode(keepass.decrypt(e.Login, key, iv, true));
 	e.Password = UTF8.decode(keepass.decrypt(e.Password, key, iv, true));
 
-	if(e.StringFields) {
-		for(var i = 0; i < e.StringFields.length; i++) {
+	if (e.StringFields) {
+		for (var i = 0; i < e.StringFields.length; i++) {
 			e.StringFields[i].Key = UTF8.decode(keepass.decrypt(e.StringFields[i].Key, key, iv, true))
 			e.StringFields[i].Value = UTF8.decode(keepass.decrypt(e.StringFields[i].Value, key, iv, true))
 		}

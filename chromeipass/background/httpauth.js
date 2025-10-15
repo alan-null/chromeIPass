@@ -10,7 +10,7 @@ httpAuth.proxyUrl = null;
 
 
 httpAuth.handleRequest = function (details, callback) {
-	if(httpAuth.requestId == details.requestId || !page.tabs[details.tabId]) {
+	if (httpAuth.requestId == details.requestId || !page.tabs[details.tabId]) {
 		callback({});
 	}
 	else {
@@ -20,13 +20,13 @@ httpAuth.handleRequest = function (details, callback) {
 	}
 }
 
-httpAuth.processPendingCallbacks = function(details) {
+httpAuth.processPendingCallbacks = function (details) {
 	httpAuth.callback = httpAuth.pendingCallbacks.pop();
 	httpAuth.tabId = details.tabId;
 	httpAuth.url = details.url;
 	httpAuth.isProxy = details.isProxy;
 
-	if(details.challenger){
+	if (details.challenger) {
 		httpAuth.proxyUrl = details.challenger.host;
 	}
 
@@ -36,17 +36,17 @@ httpAuth.processPendingCallbacks = function(details) {
 
 	var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
 
-	keepass.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id" : details.tabId }, url, url, true);
+	keepass.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id": details.tabId }, url, url, true);
 }
 
-httpAuth.loginOrShowCredentials = function(logins) {
+httpAuth.loginOrShowCredentials = function (logins) {
 	// at least one login found --> use first to login
 	if (logins.length > 0) {
 		var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
-		event.onHTTPAuthPopup(null, {"id": httpAuth.tabId}, {"logins": logins, "url": url});
+		event.onHTTPAuthPopup(null, { "id": httpAuth.tabId }, { "logins": logins, "url": url });
 		//generate popup-list for HTTP Auth usernames + descriptions
 
-		if(page.settings.autoFillAndSend) {
+		if (page.settings.autoFillAndSend) {
 			httpAuth.callback({
 				authCredentials: {
 					username: logins[0].Login,

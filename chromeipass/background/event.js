@@ -1,11 +1,11 @@
 var event = {};
 
 
-event.onMessage = function(request, sender, callback) {
+event.onMessage = function (request, sender, callback) {
 	if (request.action in event.messageHandlers) {
 		//console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
 
-		if(!sender.hasOwnProperty('tab') || sender.tab.id < 1) {
+		if (!sender.hasOwnProperty('tab') || sender.tab.id < 1) {
 			sender.tab = {};
 			sender.tab.id = page.currentTabId;
 		}
@@ -14,7 +14,7 @@ event.onMessage = function(request, sender, callback) {
 
 		// onMessage closes channel for callback automatically
 		// if this method does not return true
-		if(callback) {
+		if (callback) {
 			return true;
 		}
 	}
@@ -31,25 +31,25 @@ event.onMessage = function(request, sender, callback) {
  * @param {bool} secondTime
  * @returns null (asynchronous)
  */
-event.invoke = function(handler, callback, senderTabId, args, secondTime) {
-	if(senderTabId < 1) {
+event.invoke = function (handler, callback, senderTabId, args, secondTime) {
+	if (senderTabId < 1) {
 		return;
 	}
 
-	if(!page.tabs[senderTabId]) {
+	if (!page.tabs[senderTabId]) {
 		page.createTabEntry(senderTabId);
 	}
 
 	// remove information from no longer existing tabs
 	page.removePageInformationFromNotExistingTabs();
 
-	chrome.tabs.get(senderTabId, function(tab) {
-	//chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
+	chrome.tabs.get(senderTabId, function (tab) {
+		//chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
 		//if (tabs.length === 0)
 		//	return; // For example: only the background devtools or a popup are opened
 		//var tab = tabs[0];
 
-		if(!tab) {
+		if (!tab) {
 			return;
 		}
 
@@ -57,14 +57,14 @@ event.invoke = function(handler, callback, senderTabId, args, secondTime) {
 			// Issue 6877: tab URL is not set directly after you opened a window
 			// using window.open()
 			if (!secondTime) {
-				window.setTimeout(function() {
+				window.setTimeout(function () {
 					event.invoke(handler, callback, senderTabId, args, true);
 				}, 250);
 			}
 			return;
 		}
 
-		if(!page.tabs[tab.id]) {
+		if (!page.tabs[tab.id]) {
 			page.createTabEntry(tab.id);
 		}
 
@@ -73,7 +73,7 @@ event.invoke = function(handler, callback, senderTabId, args, secondTime) {
 		args.unshift(tab);
 		args.unshift(callback);
 
-		if(handler) {
+		if (handler) {
 			handler.apply(this, args);
 		}
 		else {
@@ -83,18 +83,18 @@ event.invoke = function(handler, callback, senderTabId, args, secondTime) {
 }
 
 
-event.onShowAlert = function(callback, tab, message) {
-	if( page.settings.supressAlerts ){ console.log(message); }
+event.onShowAlert = function (callback, tab, message) {
+	if (page.settings.supressAlerts) { console.log(message); }
 	else { alert(message); }
 }
 
-event.onLoadSettings = function(callback, tab) {
-	page.settings = (typeof(localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+event.onLoadSettings = function (callback, tab) {
+	page.settings = (typeof (localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
 }
 
-event.onLoadKeyRing = function(callback, tab) {
-	keepass.keyRing = (typeof(localStorage.keyRing) == 'undefined') ? {} : JSON.parse(localStorage.keyRing);
-	if(keepass.isAssociated() && !keepass.keyRing[keepass.associated.hash]) {
+event.onLoadKeyRing = function (callback, tab) {
+	keepass.keyRing = (typeof (localStorage.keyRing) == 'undefined') ? {} : JSON.parse(localStorage.keyRing);
+	if (keepass.isAssociated() && !keepass.keyRing[keepass.associated.hash]) {
 		keepass.associated = {
 			"value": false,
 			"hash": null
@@ -102,17 +102,17 @@ event.onLoadKeyRing = function(callback, tab) {
 	}
 }
 
-event.onGetSettings = function(callback, tab) {
+event.onGetSettings = function (callback, tab) {
 	event.onLoadSettings();
 	callback({ data: page.settings });
 }
 
-event.onSaveSettings = function(callback, tab, settings) {
+event.onSaveSettings = function (callback, tab, settings) {
 	localStorage.settings = JSON.stringify(settings);
 	event.onLoadSettings();
 }
 
-event.onGetStatus = function(callback, tab) {
+event.onGetStatus = function (callback, tab) {
 	keepass.testAssociation(tab);
 
 	var configured = keepass.isConfigured();
@@ -134,51 +134,51 @@ event.onGetStatus = function(callback, tab) {
 	});
 }
 
-event.onPopStack = function(callback, tab) {
+event.onPopStack = function (callback, tab) {
 	browserAction.stackPop(tab.id);
 	browserAction.show(null, tab);
 }
 
-event.onGetTabInformation = function(callback, tab) {
+event.onGetTabInformation = function (callback, tab) {
 	var id = tab.id || page.currentTabId;
 
 	callback(page.tabs[id]);
 }
 
-event.onGetConnectedDatabase = function(callback, tab) {
+event.onGetConnectedDatabase = function (callback, tab) {
 	callback({
 		"count": Object.keys(keepass.keyRing).length,
 		"identifier": (keepass.keyRing[keepass.associated.hash]) ? keepass.keyRing[keepass.associated.hash].id : null
 	});
 }
 
-event.onGetKeePassHttpVersions = function(callback, tab) {
-	if(keepass.currentKeePassHttp.version == 0) {
+event.onGetKeePassHttpVersions = function (callback, tab) {
+	if (keepass.currentKeePassHttp.version == 0) {
 		keepass.getDatabaseHash(tab);
 	}
-	callback({"current": keepass.currentKeePassHttp.version, "latest": keepass.latestKeePassHttp.version});
+	callback({ "current": keepass.currentKeePassHttp.version, "latest": keepass.latestKeePassHttp.version });
 }
 
-event.onCheckUpdateKeePassHttp = function(callback, tab) {
+event.onCheckUpdateKeePassHttp = function (callback, tab) {
 	keepass.checkForNewKeePassHttpVersion();
-	callback({"current": keepass.currentKeePassHttp.version, "latest": keepass.latestKeePassHttp.version});
+	callback({ "current": keepass.currentKeePassHttp.version, "latest": keepass.latestKeePassHttp.version });
 }
 
-event.onUpdateAvailableKeePassHttp = function(callback, tab) {
+event.onUpdateAvailableKeePassHttp = function (callback, tab) {
 	callback(keepass.keePassHttpUpdateAvailable());
 }
 
-event.onRemoveCredentialsFromTabInformation = function(callback, tab) {
+event.onRemoveCredentialsFromTabInformation = function (callback, tab) {
 	var id = tab.id || page.currentTabId;
 
 	page.clearCredentials(id);
 }
 
-event.onSetRememberPopup = function(callback, tab, username, password, url, usernameExists, credentialsList) {
+event.onSetRememberPopup = function (callback, tab, username, password, url, usernameExists, credentialsList) {
 	browserAction.setRememberPopup(tab.id, username, password, url, usernameExists, credentialsList);
 }
 
-event.onLoginPopup = function(callback, tab, logins) {
+event.onLoginPopup = function (callback, tab, logins) {
 	var stackData = {
 		level: 1,
 		iconType: "questionmark",
@@ -191,7 +191,7 @@ event.onLoginPopup = function(callback, tab, logins) {
 	browserAction.show(null, tab);
 }
 
-event.onHTTPAuthPopup = function(callback, tab, data) {
+event.onHTTPAuthPopup = function (callback, tab, data) {
 	var stackData = {
 		level: 1,
 		iconType: "questionmark",
@@ -204,7 +204,7 @@ event.onHTTPAuthPopup = function(callback, tab, data) {
 	browserAction.show(null, tab);
 }
 
-event.onMultipleFieldsPopup = function(callback, tab) {
+event.onMultipleFieldsPopup = function (callback, tab) {
 	var stackData = {
 		level: 1,
 		iconType: "normal",

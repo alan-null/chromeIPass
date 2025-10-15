@@ -7,7 +7,7 @@ page.initOpenedTabs();
 // initial connection with KeePassHttp
 keepass.getDatabaseHash(null);
 // set initial tab-ID
-chrome.tabs.query({"active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT}, function(tabs) {
+chrome.tabs.query({ "active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT }, function (tabs) {
 	if (tabs.length === 0)
 		return; // For example: only the background devtools or a popup are opened
 	page.currentTabId = tabs[0].id;
@@ -21,10 +21,10 @@ var _interval = 250;
  * functions if tab is created in foreground
  * @param {object} tab
  */
-chrome.tabs.onCreated.addListener(function(tab) {
-	if(tab.id > 0) {
+chrome.tabs.onCreated.addListener(function (tab) {
+	if (tab.id > 0) {
 		//console.log("chrome.tabs.onCreated(" + tab.id+ ")");
-		if(tab.selected) {
+		if (tab.selected) {
 			page.currentTabId = tab.id;
 			event.invoke(page.switchTab, null, tab.id, []);
 		}
@@ -36,9 +36,9 @@ chrome.tabs.onCreated.addListener(function(tab) {
  * @param {integer} tabId
  * @param {object} removeInfo
  */
-chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 	delete page.tabs[tabId];
-	if(page.currentTabId == tabId) {
+	if (page.currentTabId == tabId) {
 		page.currentTabId = -1;
 	}
 });
@@ -48,16 +48,16 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
  * Invoke functions to retrieve credentials for focused tab
  * @param {object} activeInfo
  */
-chrome.tabs.onActivated.addListener(function(activeInfo) {
+chrome.tabs.onActivated.addListener(function (activeInfo) {
 	// remove possible credentials from old tab information
-    page.clearCredentials(page.currentTabId, true);
-	browserAction.removeRememberPopup(null, {"id": page.currentTabId}, true);
+	page.clearCredentials(page.currentTabId, true);
+	browserAction.removeRememberPopup(null, { "id": page.currentTabId }, true);
 
-	chrome.tabs.get(activeInfo.tabId, function(info) {
+	chrome.tabs.get(activeInfo.tabId, function (info) {
 		//console.log(info.id + ": " + info.url);
-		if(info && info.id) {
+		if (info && info.id) {
 			page.currentTabId = info.id;
-			if(info.status == "complete") {
+			if (info.status == "complete") {
 				//console.log("event.invoke(page.switchTab, null, "+info.id + ", []);");
 				event.invoke(page.switchTab, null, info.id, []);
 			}
@@ -70,8 +70,8 @@ chrome.tabs.onActivated.addListener(function(activeInfo) {
  * @param {integer} tabId
  * @param {object} changeInfo
  */
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-	if(changeInfo.status == "complete") {
+chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+	if (changeInfo.status == "complete") {
 		event.invoke(browserAction.removeRememberPopup, null, tabId, []);
 	}
 });
@@ -95,8 +95,8 @@ chrome.extension.onMessage.addListener(event.onMessage);
  */
 chrome.contextMenus.create({
 	"title": "Fill &User + Pass",
-	"contexts": [ "editable" ],
-	"onclick": function(info, tab) {
+	"contexts": ["editable"],
+	"onclick": function (info, tab) {
 		chrome.tabs.sendMessage(tab.id, {
 			action: "fill_user_pass"
 		});
@@ -108,8 +108,8 @@ chrome.contextMenus.create({
  */
 chrome.contextMenus.create({
 	"title": "Fill &Pass Only",
-	"contexts": [ "editable" ],
-	"onclick": function(info, tab) {
+	"contexts": ["editable"],
+	"onclick": function (info, tab) {
 		chrome.tabs.sendMessage(tab.id, {
 			action: "fill_pass_only"
 		});
@@ -121,8 +121,8 @@ chrome.contextMenus.create({
  */
 chrome.contextMenus.create({
 	"title": "Show Password &Generator Icons",
-	"contexts": [ "editable" ],
-	"onclick": function(info, tab) {
+	"contexts": ["editable"],
+	"onclick": function (info, tab) {
 		chrome.tabs.sendMessage(tab.id, {
 			action: "activate_password_generator"
 		});
@@ -134,8 +134,8 @@ chrome.contextMenus.create({
  */
 chrome.contextMenus.create({
 	"title": "&Save credentials",
-	"contexts": [ "editable" ],
-	"onclick": function(info, tab) {
+	"contexts": ["editable"],
+	"onclick": function (info, tab) {
 		chrome.tabs.sendMessage(tab.id, {
 			action: "remember_credentials"
 		});
@@ -145,18 +145,18 @@ chrome.contextMenus.create({
 /**
  * Listen for keyboard shortcuts specified by user
  */
-chrome.commands.onCommand.addListener(function(command) {
+chrome.commands.onCommand.addListener(function (command) {
 
-	if(command === "fill-username-password") {
-		chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+	if (command === "fill-username-password") {
+		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			if (tabs.length) {
 				chrome.tabs.sendMessage(tabs[0].id, { action: "fill_user_pass" });
 			}
 		});
 	}
 
-	if(command === "fill-password") {
-		chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+	if (command === "fill-password") {
+		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			if (tabs.length) {
 				chrome.tabs.sendMessage(tabs[0].id, { action: "fill_pass_only" });
 			}
@@ -167,6 +167,6 @@ chrome.commands.onCommand.addListener(function(command) {
 /**
  * Interval which updates the browserAction (e.g. blinking icon)
  */
-window.setInterval(function() {
+window.setInterval(function () {
 	browserAction.update(_interval);
 }, _interval);

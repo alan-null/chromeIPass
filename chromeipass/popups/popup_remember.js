@@ -4,13 +4,13 @@ function _initialize(tab) {
 	_tab = tab;
 
 	// no credentials set or credentials already cleared
-	if(!_tab.credentials.username) {
+	if (!_tab.credentials.username) {
 		_close();
 		return;
 	}
 
 	// no existing credentials to update --> disable update-button
-	if(_tab.credentials.list.length == 0) {
+	if (_tab.credentials.list.length == 0) {
 		$("#btn-update").attr("disabled", true).removeClass("b2c-btn-warning");
 	}
 
@@ -19,18 +19,18 @@ function _initialize(tab) {
 	$(".information-url:first span:first").text(url);
 	$(".information-username:first span:first").text(_tab.credentials.username);
 
-	$("#btn-new").click(function(e) {
+	$("#btn-new").click(function (e) {
 		chrome.extension.sendMessage({
 			action: 'add_credentials',
 			args: [_tab.credentials.username, _tab.credentials.password, _tab.credentials.url]
 		}, _verifyResult);
 	});
 
-	$("#btn-update").click(function(e) {
+	$("#btn-update").click(function (e) {
 		e.preventDefault();
 
 		// only one entry which could be updated
-		if(_tab.credentials.list.length == 1) {
+		if (_tab.credentials.list.length == 1) {
 			chrome.extension.sendMessage({
 				action: 'update_credentials',
 				args: [_tab.credentials.list[0].Uuid, _tab.credentials.username, _tab.credentials.password, _tab.credentials.url]
@@ -40,7 +40,7 @@ function _initialize(tab) {
 			$(".credentials:first .username-new:first strong:first").text(_tab.credentials.username);
 			$(".credentials:first .username-exists:first strong:first").text(_tab.credentials.username);
 
-			if(_tab.credentials.usernameExists) {
+			if (_tab.credentials.usernameExists) {
 				$(".credentials:first .username-new:first").hide();
 				$(".credentials:first .username-exists:first").show();
 			}
@@ -49,12 +49,12 @@ function _initialize(tab) {
 				$(".credentials:first .username-exists:first").hide();
 			}
 
-			for(var i = 0; i < _tab.credentials.list.length; i++) {
+			for (var i = 0; i < _tab.credentials.list.length; i++) {
 				var $a = $("<a>")
 					.attr("href", "#")
 					.text(_tab.credentials.list[i].Login + " (" + _tab.credentials.list[i].Name + ")")
 					.data("entryId", i)
-					.click(function(e) {
+					.click(function (e) {
 						e.preventDefault();
 						chrome.extension.sendMessage({
 							action: 'update_credentials',
@@ -62,7 +62,7 @@ function _initialize(tab) {
 						}, _verifyResult);
 					});
 
-				if(_tab.credentials.usernameExists && _tab.credentials.username == _tab.credentials.list[i].Login) {
+				if (_tab.credentials.usernameExists && _tab.credentials.username == _tab.credentials.list[i].Login) {
 					$a.css("font-weight", "bold");
 				}
 
@@ -74,14 +74,14 @@ function _initialize(tab) {
 		}
 	});
 
-	$("#btn-dismiss").click(function(e) {
+	$("#btn-dismiss").click(function (e) {
 		e.preventDefault();
 		_close();
 	});
 }
 
 function _connected_database(db) {
-	if(db.count > 1 && db.identifier) {
+	if (db.count > 1 && db.identifier) {
 		$(".connected-database:first em:first").text(db.identifier);
 		$(".connected-database:first").show();
 	}
@@ -91,7 +91,7 @@ function _connected_database(db) {
 }
 
 function _verifyResult(code) {
-	if(code == "success") {
+	if (code == "success") {
 		_close();
 	}
 }
@@ -108,7 +108,7 @@ function _close() {
 	close();
 }
 
-$(function() {
+$(function () {
 	chrome.extension.sendMessage({
 		action: 'stack_add',
 		args: ["icon_remember_red_background_19x19.png", "popup_remember.html", 10, true, 0]
