@@ -32,6 +32,7 @@
         "https://*/*"
       ],
       "js": [
+        "pre_jquery_unload_patch.js",
         "jquery-1.11.1.min.js",
         "jquery-ui-1.10.2.custom.min.js",
         "chromeipass.js"
