@@ -36,38 +36,34 @@ function status_response(r) {
 
 $(function () {
 	$("#connect-button").click(function () {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "associate"
 		});
 		close();
 	});
 
 	$("#reconnect-button").click(function () {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "associate"
 		});
 		close();
 	});
 
 	$("#reload-status-button").click(function () {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "get_status"
 		}, status_response);
 	});
 
 	$("#redetect-fields-button").click(function () {
-		chrome.tabs.query({ "active": true, "windowId": chrome.windows.WINDOW_ID_CURRENT }, function (tabs) {
-			if (tabs.length === 0)
-				return; // For example: only the background devtools or a popup are opened
-			var tab = tabs[0];
-
-			chrome.tabs.sendMessage(tab.id, {
-				action: "redetect_fields"
-			});
+		chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+			if (tabs && tabs[0]) {
+				chrome.tabs.sendMessage(tabs[0].id, { action: "redetect_fields" });
+			}
 		});
 	});
 
-	chrome.extension.sendMessage({
+	chrome.runtime.sendMessage({
 		action: "get_status"
 	}, status_response);
 });

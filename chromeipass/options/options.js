@@ -2,7 +2,17 @@ if (cIPJQ) {
 	var $ = cIPJQ.noConflict(true);
 }
 
-$(function () {
+var options = options || {};
+
+// Defer UI init until storage loaded
+options.settings = {};
+options.keyRing = {};
+
+chrome.storage.local.get(['settings', 'keyRing'], data => {
+	try { options.settings = data.settings ? JSON.parse(data.settings) : {}; } catch (_) { options.settings = {}; }
+	try { options.keyRing = data.keyRing ? JSON.parse(data.keyRing) : {}; } catch (_) { options.keyRing = {}; }
+
+	// Now init UI (was previously in $(function))
 	options.initMenu();
 	options.initGeneralSettings();
 	options.initConnectedDatabases();
@@ -10,10 +20,13 @@ $(function () {
 	options.initAbout();
 });
 
-var options = options || {};
-
-options.settings = typeof (localStorage.settings) == 'undefined' ? {} : JSON.parse(localStorage.settings);
-options.keyRing = typeof (localStorage.keyRing) == 'undefined' ? {} : JSON.parse(localStorage.keyRing);
+// Saving helpers
+function saveSettingsSync() {
+	chrome.storage.local.set({ settings: JSON.stringify(options.settings) });
+}
+function saveKeyRingSync() {
+	chrome.storage.local.set({ keyRing: JSON.stringify(options.keyRing) });
+}
 
 options.initMenu = function () {
 	$(".navbar:first ul.nav:first li a").click(function (e) {
@@ -35,8 +48,8 @@ options.initGeneralSettings = function () {
 	$("#tab-general-settings input[type=checkbox]").change(function () {
 		options.settings[$(this).attr("name")] = $(this).is(':checked');
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
@@ -50,20 +63,20 @@ options.initGeneralSettings = function () {
 	$("#tab-general-settings input[type=radio]").change(function () {
 		options.settings[$(this).attr("name")] = $(this).val();
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
 
-	chrome.extension.sendMessage({
+	chrome.runtime.sendMessage({
 		action: "get_keepasshttp_versions"
 	}, options.showKeePassHttpVersions);
 
 	$("#tab-general-settings button.checkUpdateKeePassHttp:first").click(function (e) {
 		e.preventDefault();
 		$(this).attr("disabled", true);
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "check_update_keepasshttp"
 		}, options.showKeePassHttpVersions);
 	});
@@ -93,8 +106,8 @@ options.initGeneralSettings = function () {
 		setTimeout(function () { $("#port").closest(".control-group").removeClass("success") }, 2500);
 
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
@@ -112,8 +125,8 @@ options.initGeneralSettings = function () {
 		setTimeout(function () { $("#hostname").closest(".control-group").removeClass("success") }, 2500);
 
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
@@ -127,8 +140,8 @@ options.initGeneralSettings = function () {
 		setTimeout(function () { $("#blinkTimeout").closest(".control-group").removeClass("success") }, 2500);
 
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
@@ -142,8 +155,8 @@ options.initGeneralSettings = function () {
 		setTimeout(function () { $("#blinkMinTimeout").closest(".control-group").removeClass("success") }, 2500);
 
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
@@ -157,8 +170,8 @@ options.initGeneralSettings = function () {
 		setTimeout(function () { $("#allowedRedirect").closest(".control-group").removeClass("success") }, 2500);
 
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 	});
@@ -196,8 +209,8 @@ options.initConnectedDatabases = function () {
 
 		delete options.keyRing[$hash];
 		localStorage.keyRing = JSON.stringify(options.keyRing);
-
-		chrome.extension.sendMessage({
+		saveKeyRingSync();
+		chrome.runtime.sendMessage({
 			action: 'load_keyring'
 		});
 
@@ -220,7 +233,8 @@ options.initConnectedDatabases = function () {
 
 		options.keyRing[$hash].icon = $icon;
 		localStorage.keyRing = JSON.stringify(options.keyRing);
-		chrome.extension.sendMessage({
+		saveKeyRingSync();
+		chrome.runtime.sendMessage({
 			action: 'load_keyring'
 		});
 	});
@@ -250,7 +264,7 @@ options.initConnectedDatabases = function () {
 		$("#tab-connected-databases table tbody:first tr.empty:first").show();
 	}
 	$("#connect-button").click(function () {
-		chrome.extension.sendMessage({
+		chrome.runtime.sendMessage({
 			action: "associate"
 		});
 	});
@@ -275,8 +289,8 @@ options.initSpecifiedCredentialFields = function () {
 
 		delete options.settings["defined-credential-fields"][$url];
 		localStorage.settings = JSON.stringify(options.settings);
-
-		chrome.extension.sendMessage({
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
 			action: 'load_settings'
 		});
 
@@ -310,5 +324,5 @@ options.initSpecifiedCredentialFields = function () {
 }
 
 options.initAbout = function () {
-	$("#tab-about em.versionCIP").text(chrome.app.getDetails().version);
+	$("#tab-about em.versionCIP").text(chrome.runtime.getManifest().version);
 }

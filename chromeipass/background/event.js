@@ -57,7 +57,7 @@ event.invoke = function (handler, callback, senderTabId, args, secondTime) {
 			// Issue 6877: tab URL is not set directly after you opened a window
 			// using window.open()
 			if (!secondTime) {
-				window.setTimeout(function () {
+				setTimeout(function () {
 					event.invoke(handler, callback, senderTabId, args, true);
 				}, 250);
 			}
@@ -85,31 +85,43 @@ event.invoke = function (handler, callback, senderTabId, args, secondTime) {
 
 event.onShowAlert = function (callback, tab, message) {
 	if (page.settings.supressAlerts) { console.log(message); }
-	else { alert(message); }
+	else { alert(message); } // TODO: Error handling response: ReferenceError: alert is not defined
 }
 
 event.onLoadSettings = function (callback, tab) {
-	page.settings = (typeof (localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+	chrome.storage.local.get(['settings'], data => {
+		try {
+			page.settings = data.settings ? JSON.parse(data.settings) : {};
+		} catch (_) { page.settings = {}; }
+		callback && callback();
+	});
 }
 
 event.onLoadKeyRing = function (callback, tab) {
-	keepass.keyRing = (typeof (localStorage.keyRing) == 'undefined') ? {} : JSON.parse(localStorage.keyRing);
-	if (keepass.isAssociated() && !keepass.keyRing[keepass.associated.hash]) {
-		keepass.associated = {
-			"value": false,
-			"hash": null
-		};
-	}
+	chrome.storage.local.get(['keyRing'], data => {
+		try {
+			keepass.keyRing = data.keyRing ? JSON.parse(data.keyRing) : {};
+		} catch (_) { keepass.keyRing = {}; }
+		if (keepass.isAssociated() && !keepass.keyRing[keepass.associated.hash]) {
+			keepass.associated = {
+				"value": false,
+				"hash": null
+			};
+		}
+		callback && callback();
+	});
 }
 
 event.onGetSettings = function (callback, tab) {
-	event.onLoadSettings();
-	callback({ data: page.settings });
+	event.onLoadSettings(() => {
+		callback({ data: page.settings });
+	});
 }
 
 event.onSaveSettings = function (callback, tab, settings) {
-	localStorage.settings = JSON.stringify(settings);
-	event.onLoadSettings();
+	chrome.storage.local.set({ settings: JSON.stringify(settings) }, () => {
+		event.onLoadSettings(callback);
+	});
 }
 
 event.onGetStatus = function (callback, tab) {

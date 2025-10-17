@@ -1,9 +1,11 @@
 var $ = cIPJQ.noConflict(true);
-var _settings = typeof (localStorage.settings) == 'undefined' ? {} : JSON.parse(localStorage.settings);
-//var global = chrome.extension.getBackgroundPage();
+var _settings = {};
+chrome.storage.local.get(['settings'], d => {
+	try { _settings = d.settings ? JSON.parse(d.settings) : {}; } catch(_) {}
+});
 
 function updateAvailableResponse(available) {
-	if (available) {
+	if(available) {
 		$("#update-available").show();
 	}
 	else {
@@ -12,27 +14,28 @@ function updateAvailableResponse(available) {
 }
 
 function initSettings() {
-	$("#settings #btn-options").click(function () {
+	$("#settings #btn-options").click(function() {
 		close();
 		chrome.tabs.create({
 			url: "../options/options.html"
 		})
 	});
 
-	$("#settings #btn-choose-credential-fields").click(function () {
-		var global = chrome.extension.getBackgroundPage();
-		chrome.tabs.sendMessage(global.page.currentTabId, {
-			action: "choose_credential_fields"
+	$("#settings #btn-choose-credential-fields").click(function() {
+		chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+			if (tabs && tabs[0]) {
+				chrome.tabs.sendMessage(tabs[0].id, { action: "choose_credential_fields" });
+			}
+			close();
 		});
-		close();
 	});
 }
 
 
-$(function () {
+$(function() {
 	initSettings();
 
-	chrome.extension.sendMessage({
+	chrome.runtime.sendMessage({
 		action: "update_available_keepasshttp"
 	}, updateAvailableResponse);
 });

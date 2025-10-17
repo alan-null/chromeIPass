@@ -4,41 +4,61 @@ var BLINK_TIMEOUT_DEFAULT = 7500;
 var BLINK_TIMEOUT_REDIRECT_THRESHOLD_TIME_DEFAULT = -1;
 var BLINK_TIMEOUT_REDIRECT_COUNT_DEFAULT = 1;
 
+browserAction._ensureTabData = function (tabId) {
+	if (!page.tabs[tabId]) {
+		page.tabs[tabId] = {
+			stack: [],
+			loginList: [],
+			credentials: {},
+			errorMessage: null
+		};
+	}
+};
+
 browserAction.show = function (callback, tab) {
+	if (!tab || !tab.id) return;
+	browserAction._ensureTabData(tab.id);
+
 	var data = {};
 	if (!page.tabs[tab.id] || page.tabs[tab.id].stack.length == 0) {
 		browserAction.showDefault(callback, tab);
 		return;
-	}
-	else {
+	} else {
 		data = page.tabs[tab.id].stack[page.tabs[tab.id].stack.length - 1];
 	}
 
-	chrome.browserAction.setIcon({
-		tabId: tab.id,
-		path: "/icons/19x19/" + browserAction.generateIconName(data.iconType, data.icon)
-	});
-
-	if (data.popup) {
-		chrome.browserAction.setPopup({
+	try {
+		chrome.action.setIcon({
 			tabId: tab.id,
-			popup: "popups/" + data.popup
+			path: "/icons/19x19/" + browserAction.generateIconName(data.iconType, data.icon)
 		});
+		if (data.popup) {
+			chrome.action.setPopup({
+				tabId: tab.id,
+				popup: "popups/" + data.popup
+			});
+		}
+	} catch (e) {
+		console.log("Set icon/popup failed", e);
 	}
-}
+};
 
 browserAction.update = function (interval) {
-	if (!page.tabs[page.currentTabId] || page.tabs[page.currentTabId].stack.length == 0) {
+	var currentId = page.currentTabId;
+	if (typeof currentId === 'undefined' || currentId === -1) return;
+	browserAction._ensureTabData(currentId);
+
+	if (!page.tabs[currentId] || page.tabs[currentId].stack.length == 0) {
 		return;
 	}
 
-	var data = page.tabs[page.currentTabId].stack[page.tabs[page.currentTabId].stack.length - 1];
+	var data = page.tabs[currentId].stack[page.tabs[currentId].stack.length - 1];
 
 	if (typeof data.visibleForMilliSeconds != "undefined") {
 		if (data.visibleForMilliSeconds <= 0) {
-			browserAction.stackPop(page.currentTabId);
-			browserAction.show(null, { "id": page.currentTabId });
-			page.clearCredentials(page.currentTabId);
+			browserAction.stackPop(currentId);
+			browserAction.show(null, { "id": currentId });
+			page.clearCredentials(currentId);
 			return;
 		}
 		data.visibleForMilliSeconds -= interval;
@@ -57,19 +77,26 @@ browserAction.update = function (interval) {
 			data.intervalIcon.index = 0;
 		}
 
-		chrome.browserAction.setIcon({
-			tabId: page.currentTabId,
-			path: "/icons/19x19/" + browserAction.generateIconName(null, data.intervalIcon.icons[data.intervalIcon.index])
-		});
+		try {
+			chrome.action.setIcon({
+				tabId: currentId,
+				path: "/icons/19x19/" + browserAction.generateIconName(null, data.intervalIcon.icons[data.intervalIcon.index])
+			});
+		} catch (e) {
+			console.log("Set interval icon failed", e);
+		}
 	}
-}
+};
 
 browserAction.showDefault = function (callback, tab) {
+	if (!tab || !tab.id) return;
+	browserAction._ensureTabData(tab.id);
+
 	var stackData = {
 		level: 1,
 		iconType: "normal",
 		popup: "popup.html"
-	}
+	};
 	if (!keepass.isConfigured() || keepass.isDatabaseClosed || !keepass.isKeePassHttpAvailable || page.tabs[tab.id].errorMessage) {
 		stackData.iconType = "cross";
 	}
@@ -82,7 +109,7 @@ browserAction.showDefault = function (callback, tab) {
 	browserAction.stackUnshift(stackData, tab.id);
 
 	browserAction.show(null, tab);
-}
+};
 
 browserAction.stackAdd = function (callback, tab, icon, popup, level, push, visibleForMilliSeconds, visibleForPageUpdates, redirectOffset, dontShow) {
 	var id = tab.id || page.currentTabId;
@@ -94,7 +121,7 @@ browserAction.stackAdd = function (callback, tab, icon, popup, level, push, visi
 	var stackData = {
 		"level": level,
 		"icon": icon
-	}
+	};
 
 	if (popup) {
 		stackData.popup = popup;
@@ -122,8 +149,7 @@ browserAction.stackAdd = function (callback, tab, icon, popup, level, push, visi
 	if (!dontShow) {
 		browserAction.show(null, { "id": id });
 	}
-}
-
+};
 
 browserAction.removeLevelFromStack = function (callback, tab, level, type, dontShow) {
 	if (!page.tabs[tab.id]) {
@@ -154,7 +180,7 @@ browserAction.removeLevelFromStack = function (callback, tab, level, type, dontS
 	if (!dontShow) {
 		browserAction.show(callback, tab);
 	}
-}
+};
 
 browserAction.stackPop = function (tabId) {
 	var id = tabId || page.currentTabId;
@@ -176,8 +202,9 @@ browserAction.stackUnshift = function (data, tabId) {
 	page.tabs[id].stack.unshift(data);
 };
 
-
 browserAction.removeRememberPopup = function (callback, tab, removeImmediately) {
+	if (!tab || !tab.id) return;
+	browserAction._ensureTabData(tab.id);
 	if (!page.tabs[tab.id]) {
 		return;
 	}
@@ -203,43 +230,46 @@ browserAction.removeRememberPopup = function (callback, tab, removeImmediately) 
 };
 
 browserAction.setRememberPopup = function (tabId, username, password, url, usernameExists, credentialsList) {
-	var settings = typeof (localStorage.settings) == 'undefined' ? {} : JSON.parse(localStorage.settings);
+	// Async fetch settings from chrome.storage.local instead of localStorage
+	chrome.storage.local.get(['settings'], raw => {
+		let settings = {};
+		try { settings = raw.settings ? JSON.parse(raw.settings) : {}; } catch (_) { }
+		var id = tabId || page.currentTabId;
 
-	var id = tabId || page.currentTabId;
+		var timeoutMinMillis = parseInt(getValueOrDefault(settings, "blinkMinTimeout", BLINK_TIMEOUT_REDIRECT_THRESHOLD_TIME_DEFAULT, 0));
+		if (timeoutMinMillis > 0) {
+			timeoutMinMillis += Date.now();
+		}
+		var blinkTimeout = getValueOrDefault(settings, "blinkTimeout", BLINK_TIMEOUT_DEFAULT, 0);
+		var pageUpdateAllowance = getValueOrDefault(settings, "allowedRedirect", BLINK_TIMEOUT_REDIRECT_COUNT_DEFAULT, 0);
 
-	var timeoutMinMillis = parseInt(getValueOrDefault(settings, "blinkMinTimeout", BLINK_TIMEOUT_REDIRECT_THRESHOLD_TIME_DEFAULT, 0));
-	if (timeoutMinMillis > 0) {
-		timeoutMinMillis += Date.now();
-	}
-	var blinkTimeout = getValueOrDefault(settings, "blinkTimeout", BLINK_TIMEOUT_DEFAULT, 0);
-	var pageUpdateAllowance = getValueOrDefault(settings, "allowedRedirect", BLINK_TIMEOUT_REDIRECT_COUNT_DEFAULT, 0);
+		var stackData = {
+			visibleForMilliSeconds: blinkTimeout,
+			visibleForPageUpdates: pageUpdateAllowance,
+			redirectOffset: timeoutMinMillis,
+			level: 10,
+			intervalIcon: {
+				index: 0,
+				counter: 0,
+				max: 2,
+				icons: ["icon_remember_red_background_19x19.png", "icon_remember_red_lock_19x19.png"]
+			},
+			icon: "icon_remember_red_background_19x19.png",
+			popup: "popup_remember.html"
+		};
 
-	var stackData = {
-		visibleForMilliSeconds: blinkTimeout,
-		visibleForPageUpdates: pageUpdateAllowance,
-		redirectOffset: timeoutMinMillis,
-		level: 10,
-		intervalIcon: {
-			index: 0,
-			counter: 0,
-			max: 2,
-			icons: ["icon_remember_red_background_19x19.png", "icon_remember_red_lock_19x19.png"]
-		},
-		icon: "icon_remember_red_background_19x19.png",
-		popup: "popup_remember.html"
-	}
+		browserAction.stackPush(stackData, id);
 
-	browserAction.stackPush(stackData, id);
+		page.tabs[id].credentials = {
+			"username": username,
+			"password": password,
+			"url": url,
+			"usernameExists": usernameExists,
+			"list": credentialsList
+		};
 
-	page.tabs[id].credentials = {
-		"username": username,
-		"password": password,
-		"url": url,
-		"usernameExists": usernameExists,
-		"list": credentialsList
-	};
-
-	browserAction.show(null, { "id": id });
+		browserAction.show(null, { "id": id });
+	});
 }
 
 function getValueOrDefault(settings, key, defaultVal, min) {
@@ -264,4 +294,4 @@ browserAction.generateIconName = function (iconType, icon) {
 	name += "_19x19.png";
 
 	return name;
-}
+};

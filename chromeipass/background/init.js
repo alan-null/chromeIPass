@@ -24,7 +24,7 @@ var _interval = 250;
 chrome.tabs.onCreated.addListener(function (tab) {
 	if (tab.id > 0) {
 		//console.log("chrome.tabs.onCreated(" + tab.id+ ")");
-		if (tab.selected) {
+		if (tab.active) {
 			page.currentTabId = tab.id;
 			event.invoke(page.switchTab, null, tab.id, []);
 		}
@@ -87,58 +87,50 @@ chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
 /**
  * Interaction between background-script and front-script
  */
-chrome.extension.onMessage.addListener(event.onMessage);
+chrome.runtime.onMessage.addListener(event.onMessage);
 
 
 /**
  * Add context menu entry for filling in username + password
  */
-chrome.contextMenus.create({
-	"title": "Fill &User + Pass",
-	"contexts": ["editable"],
-	"onclick": function (info, tab) {
-		chrome.tabs.sendMessage(tab.id, {
-			action: "fill_user_pass"
-		});
-	}
+chrome.contextMenus.removeAll(() => {
+	chrome.contextMenus.create({
+		id: "cip_fill_user_pass",
+		title: "Fill &User + Pass",
+		contexts: ["editable"]
+	});
+	chrome.contextMenus.create({
+		id: "cip_fill_pass_only",
+		title: "Fill &Pass Only",
+		contexts: ["editable"]
+	});
+	chrome.contextMenus.create({
+		id: "cip_show_generator",
+		title: "Show Password &Generator Icons",
+		contexts: ["editable"]
+	});
+	chrome.contextMenus.create({
+		id: "cip_save_credentials",
+		title: "&Save credentials",
+		contexts: ["editable"]
+	});
 });
 
-/**
- * Add context menu entry for filling in only password which matches for given username
- */
-chrome.contextMenus.create({
-	"title": "Fill &Pass Only",
-	"contexts": ["editable"],
-	"onclick": function (info, tab) {
-		chrome.tabs.sendMessage(tab.id, {
-			action: "fill_pass_only"
-		});
-	}
-});
-
-/**
- * Add context menu entry for creating icon for generate-password dialog
- */
-chrome.contextMenus.create({
-	"title": "Show Password &Generator Icons",
-	"contexts": ["editable"],
-	"onclick": function (info, tab) {
-		chrome.tabs.sendMessage(tab.id, {
-			action: "activate_password_generator"
-		});
-	}
-});
-
-/**
- * Add context menu entry for creating icon for generate-password dialog
- */
-chrome.contextMenus.create({
-	"title": "&Save credentials",
-	"contexts": ["editable"],
-	"onclick": function (info, tab) {
-		chrome.tabs.sendMessage(tab.id, {
-			action: "remember_credentials"
-		});
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+	if (!tab || !tab.id) return;
+	switch (info.menuItemId) {
+		case "cip_fill_user_pass":
+			chrome.tabs.sendMessage(tab.id, { action: "fill_user_pass" });
+			break;
+		case "cip_fill_pass_only":
+			chrome.tabs.sendMessage(tab.id, { action: "fill_pass_only" });
+			break;
+		case "cip_show_generator":
+			chrome.tabs.sendMessage(tab.id, { action: "activate_password_generator" });
+			break;
+		case "cip_save_credentials":
+			chrome.tabs.sendMessage(tab.id, { action: "remember_credentials" });
+			break;
 	}
 });
 
@@ -167,6 +159,6 @@ chrome.commands.onCommand.addListener(function (command) {
 /**
  * Interval which updates the browserAction (e.g. blinking icon)
  */
-window.setInterval(function () {
+setInterval(function () {
 	browserAction.update(_interval);
 }, _interval);
