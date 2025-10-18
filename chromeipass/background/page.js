@@ -53,7 +53,7 @@ page.isValidProtocol = function (url) {
 page.switchTab = function (callback, tab) {
 	browserAction.showDefault(null, tab);
 
-	chrome.tabs.sendMessage(tab.id, { action: "activated_tab" });
+	safeSendMessage(tab.id, { action: "activated_tab" });
 }
 
 page.clearCredentials = function (tabId, complete) {
@@ -67,9 +67,7 @@ page.clearCredentials = function (tabId, complete) {
 	if (complete) {
 		page.tabs[tabId].loginList = [];
 
-		chrome.tabs.sendMessage(tabId, {
-			action: "clear_credentials"
-		});
+		safeSendMessage(tabId, { action: "clear_credentials" });
 	}
 }
 

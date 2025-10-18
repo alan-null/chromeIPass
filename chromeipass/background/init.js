@@ -122,16 +122,16 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
 	if (!tab || !tab.id) return;
 	switch (info.menuItemId) {
 		case "cip_fill_user_pass":
-			chrome.tabs.sendMessage(tab.id, { action: "fill_user_pass" });
+			safeSendMessage(tab.id, { action: "fill_user_pass" });
 			break;
 		case "cip_fill_pass_only":
-			chrome.tabs.sendMessage(tab.id, { action: "fill_pass_only" });
+			safeSendMessage(tab.id, { action: "fill_pass_only" });
 			break;
 		case "cip_show_generator":
-			chrome.tabs.sendMessage(tab.id, { action: "activate_password_generator" });
+			safeSendMessage(tab.id, { action: "activate_password_generator" });
 			break;
 		case "cip_save_credentials":
-			chrome.tabs.sendMessage(tab.id, { action: "remember_credentials" });
+			safeSendMessage(tab.id, { action: "remember_credentials" });
 			break;
 	}
 });
@@ -144,7 +144,7 @@ chrome.commands.onCommand.addListener(function (command) {
 	if (command === "fill-username-password") {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			if (tabs.length) {
-				chrome.tabs.sendMessage(tabs[0].id, { action: "fill_user_pass" });
+				safeSendMessage(tabs[0].id, { action: "fill_user_pass" });
 			}
 		});
 	}
@@ -152,7 +152,7 @@ chrome.commands.onCommand.addListener(function (command) {
 	if (command === "fill-password") {
 		chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 			if (tabs.length) {
-				chrome.tabs.sendMessage(tabs[0].id, { action: "fill_pass_only" });
+				safeSendMessage(tabs[0].id, { action: "fill_pass_only" });
 			}
 		});
 	}
