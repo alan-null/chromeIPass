@@ -2,6 +2,10 @@ var event = {};
 
 
 event.onMessage = function (request, sender, callback) {
+	if (blockIfNotMainFrame(sender, callback)) {
+		return;
+	}
+
 	if (request.action in event.messageHandlers) {
 		//console.log("onMessage(" + request.action + ") for #" + sender.tab.id);
 

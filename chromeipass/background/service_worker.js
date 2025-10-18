@@ -52,6 +52,7 @@ if (typeof localStorage === 'undefined') {
 // Load legacy modules (adjust order if dependencies differ)
 importScripts(
     'aes.js',
+    'common.js',
     'cryptoHelpers.js',
     'utf8.js',
     'keepass.js',
@@ -64,6 +65,10 @@ importScripts(
 
 // UNIFIED MESSAGE ROUTER (adds missing actions)
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    if (blockIfNotMainFrame(sender, sendResponse)) {
+        return;
+    }
+
     try {
         if (!msg || typeof msg !== 'object') return;
         const action = msg.action;
