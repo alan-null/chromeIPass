@@ -50,8 +50,10 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
  */
 chrome.tabs.onActivated.addListener(function (activeInfo) {
 	// remove possible credentials from old tab information
+	if (page.currentTabId !== -1) {
 	page.clearCredentials(page.currentTabId, true);
 	browserAction.removeRememberPopup(null, { "id": page.currentTabId }, true);
+	}
 
 	chrome.tabs.get(activeInfo.tabId, function (info) {
 		//console.log(info.id + ": " + info.url);
