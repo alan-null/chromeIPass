@@ -39,11 +39,25 @@ httpAuth.processPendingCallbacks = function (details) {
 	keepass.retrieveCredentials(httpAuth.loginOrShowCredentials, { "id": details.tabId }, url, url, true);
 }
 
+httpAuth.onHTTPAuthPopup = function (tab, data) {
+	var stackData = {
+		level: 1,
+		iconType: "questionmark",
+		popup: "popup_httpauth.html"
+	}
+	browserAction.stackUnshift(stackData, tab.id);
+
+	page.tabs[tab.id].loginList = data;
+
+	browserAction.show(null, tab);
+}
+
 httpAuth.loginOrShowCredentials = function (logins) {
 	// at least one login found --> use first to login
 	if (logins.length > 0) {
 		var url = (httpAuth.isProxy && httpAuth.proxyUrl) ? httpAuth.proxyUrl : httpAuth.url;
-		event.onHTTPAuthPopup(null, { "id": httpAuth.tabId }, { "logins": logins, "url": url });
+		httpAuth.onHTTPAuthPopup({ "id": httpAuth.tabId }, { "logins": logins, "url": url });
+
 		//generate popup-list for HTTP Auth usernames + descriptions
 
 		if (page.settings.autoFillAndSend) {

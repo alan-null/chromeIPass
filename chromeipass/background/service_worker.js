@@ -59,7 +59,6 @@ importScripts(
     'httpauth.js',
     'browserAction.js',
     'page.js',
-    'event.js',
     'init.js'
 );
 

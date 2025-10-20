@@ -8,7 +8,12 @@ page.settings = (typeof (localStorage.settings) == 'undefined') ? {} : JSON.pars
 page.blockedTabs = {};
 
 page.initSettings = function () {
-	event.onLoadSettings();
+	chrome.storage.local.get(['settings'], data => {
+		try {
+			page.settings = data.settings ? JSON.parse(data.settings) : {};
+		} catch (_) { page.settings = {}; }
+	});
+
 	if (!("checkUpdateKeePassHttp" in page.settings)) {
 		page.settings.checkUpdateKeePassHttp = 3;
 	}

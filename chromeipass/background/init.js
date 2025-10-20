@@ -26,7 +26,7 @@ chrome.tabs.onCreated.addListener(function (tab) {
 		//console.log("chrome.tabs.onCreated(" + tab.id+ ")");
 		if (tab.active) {
 			page.currentTabId = tab.id;
-			event.invoke(page.switchTab, null, tab.id, []);
+			page.switchTab(null, tab);
 		}
 	}
 });
@@ -51,8 +51,8 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 chrome.tabs.onActivated.addListener(function (activeInfo) {
 	// remove possible credentials from old tab information
 	if (page.currentTabId !== -1) {
-	page.clearCredentials(page.currentTabId, true);
-	browserAction.removeRememberPopup(null, { "id": page.currentTabId }, true);
+		page.clearCredentials(page.currentTabId, true);
+		browserAction.removeRememberPopup(null, { "id": page.currentTabId }, true);
 	}
 
 	chrome.tabs.get(activeInfo.tabId, function (info) {
@@ -60,8 +60,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
 		if (info && info.id) {
 			page.currentTabId = info.id;
 			if (info.status == "complete") {
-				//console.log("event.invoke(page.switchTab, null, "+info.id + ", []);");
-				event.invoke(page.switchTab, null, info.id, []);
+				page.switchTab(null, info);
 			}
 		}
 	});
@@ -74,7 +73,7 @@ chrome.tabs.onActivated.addListener(function (activeInfo) {
  */
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 	if (changeInfo.status == "complete") {
-		event.invoke(browserAction.removeRememberPopup, null, tabId, []);
+		browserAction.removeRememberPopup(null, { id: tabId }, true);
 	}
 });
 
@@ -85,12 +84,6 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.webRequest.onAuthRequired.addListener(httpAuth.handleRequest,
 	{ urls: ["<all_urls>"] }, ["asyncBlocking"]
 );
-
-/**
- * Interaction between background-script and front-script
- */
-chrome.runtime.onMessage.addListener(event.onMessage);
-
 
 /**
  * Add context menu entry for filling in username + password
