@@ -3,3 +3,5 @@
 chromeipass.pem
 /chromeipass-data/
 .idea/
+scripts/*/dist/
+scripts/*/raw/

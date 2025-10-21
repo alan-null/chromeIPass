@@ -1,9 +1,8 @@
-$(function () {
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-		// TODO: Validate that the tab is not popup_login.html itself
+document.addEventListener('DOMContentLoaded', () => {
+	chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
 		if (!tabs.length) return;
 		const tab = tabs[0];
-		chrome.runtime.sendMessage({ action: 'get_tab_information' }, function (info) {
+		chrome.runtime.sendMessage({ action: 'get_tab_information' }, info => {
 			if (!info || !info.loginList) return;
 			const logins = info.loginList;
 			const ul = document.getElementById("login-list");
@@ -14,8 +13,8 @@ $(function () {
 				const a = document.createElement("a");
 				a.textContent = display;
 				a.id = String(i);
-				a.addEventListener('click', function (e) {
-					const id = e.target.id;
+				a.addEventListener('click', e => {
+					const id = e.currentTarget.id;
 					chrome.tabs.sendMessage(tab.id, {
 						action: 'fill_user_pass_with_specific_login',
 						id: id

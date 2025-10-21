@@ -33,12 +33,12 @@
       ],
       "js": [
         "pre_jquery_unload_patch.js",
-        "jquery-1.11.1.min.js",
-        "jquery-ui-1.10.2.custom.min.js",
+        "lib/jquery.min.custom.js",
+        "lib/jquery-ui.min.custom.js",
         "chromeipass.js"
       ],
       "css": [
-        "jquery-ui-1.10.2.custom.min.css",
+        "lib/jquery-ui.min.custom.css",
         "bootstrap-btn.css",
         "chromeipass.css"
       ],
@@ -65,7 +65,6 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "jquery.min.map",
         "icons/key_16x16.png",
         "icons/key_24x24.png",
         "images/ui-bg_flat_0_aaaaaa_40x100.png",
