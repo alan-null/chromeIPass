@@ -240,10 +240,8 @@ cipPassword.createDialog = function () {
 		.click(function (e) {
 			e.preventDefault();
 
-			chrome.runtime.sendMessage({
-				action: "copy_password",
-				args: [cIPJQ("input#cip-genpw-textfield-password").val()]
-			}, cipPassword.callbackPasswordCopied);
+			var $password = cIPJQ("input#cip-genpw-textfield-password:first").val();
+			cipPassword.copyToClipboard($password);
 		});
 	$divFloat.append($btnClipboard);
 
@@ -309,11 +307,7 @@ cipPassword.createDialog = function () {
 					}
 				}
 
-				// copy password to clipboard
-				chrome.runtime.sendMessage({
-					action: "copy_password",
-					args: [$password]
-				}, cipPassword.callbackPasswordCopied);
+				cipPassword.copyToClipboard($password);
 			}
 		});
 	$dialog.append($btnFillIn);
@@ -337,6 +331,14 @@ cipPassword.createDialog = function () {
 			}
 		}
 	});
+}
+
+cipPassword.copyToClipboard = function (text) {
+	if (navigator.clipboard && navigator.clipboard.writeText) {
+		navigator.clipboard.writeText(text)
+			.then(() => cipPassword.callbackPasswordCopied(true))
+			.catch(() => cipPassword.callbackPasswordCopied(false));
+	}
 }
 
 cipPassword.createIcon = function (field) {
@@ -409,11 +411,16 @@ cipPassword.setIconPosition = function ($icon, $field) {
 		.css("left", $field.offset().left + $field.outerWidth() - $icon.data("size") - $icon.data("offset"))
 }
 
-cipPassword.callbackPasswordCopied = function (bool) {
-	if (bool) {
-		cIPJQ("#cip-genpw-btn-clipboard").addClass("b2c-btn-success");
+cipPassword.callbackPasswordCopied = function (success) {
+	const btn = cIPJQ("#cip-genpw-btn-clipboard");
+	btn.removeClass("b2c-btn-success b2c-btn-danger")
+	if (success) {
+		btn.addClass("b2c-btn-success");
+	} else {
+		btn.addClass("b2c-btn-danger");
+		console.error("Could not copy password to clipboard.");
 	}
-}
+};
 
 cipPassword.callbackGeneratedPassword = function (entries) {
 	if (entries && entries.length >= 1) {

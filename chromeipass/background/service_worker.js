@@ -138,12 +138,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                     keepass.generatePassword(entries => sendResponse(entries || []), t, true);
                 }, []);
             }
-            case 'copy_password': {
-                return withTab(t => {
-                    const pwd = (msg.args && msg.args[0]) || '';
-                    keepass.copyPassword(result => sendResponse(result), t, pwd);
-                }, { ok: false });
-            }
             case 'popup_login': {
                 return withTab(t => {
                     if (typeof browserAction !== 'undefined') {

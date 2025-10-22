@@ -152,38 +152,6 @@ keepass.ensureAssociation = async function (tab, triggerUnlock) {
 	return keepass.isAssociated();
 };
 
-keepass._fallbackCopy = function (tab, password, callback) {
-	// Inject into page to use DOM-based copy
-	try {
-		chrome.scripting.executeScript({
-			target: { tabId: tab.id },
-			args: [password],
-			func: pwd => {
-				try {
-					if (navigator.clipboard && navigator.clipboard.writeText) {
-						return navigator.clipboard.writeText(pwd).then(() => true).catch(() => false);
-					}
-					const ta = document.createElement('textarea');
-					ta.value = pwd;
-					document.body.appendChild(ta);
-					ta.select();
-					document.execCommand('copy');
-					document.body.removeChild(ta);
-					return true;
-				} catch {
-					return false;
-				}
-			}
-		}, res => {
-			const ok = res && res[0] && (res[0].result === true);
-			callback(!!ok);
-		});
-	} catch (e) {
-		console.log("Copy fallback error", e);
-		callback(false);
-	}
-};
-
 keepass.addCredentials = function (callback, tab, username, password, url) {
 	keepass.updateCredentials(callback, tab, null, username, password, url);
 }
@@ -368,17 +336,6 @@ keepass.generatePassword = async function (callback, tab, forceCallback) {
 
 	callback(passwords);
 }
-
-keepass.copyPassword = function (callback, tab, password) {
-	// Try direct clipboard API (may succeed in extension service worker)
-	if (navigator.clipboard && navigator.clipboard.writeText) {
-		navigator.clipboard.writeText(password)
-			.then(() => callback(true))
-			.catch(() => keepass._fallbackCopy(tab, password, callback));
-	} else {
-		keepass._fallbackCopy(tab, password, callback);
-	}
-};
 
 keepass.associate = async function (callback, tab) {
 	if (keepass.isAssociated()) return;
