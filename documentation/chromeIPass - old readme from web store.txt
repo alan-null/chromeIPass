@@ -20,12 +20,12 @@ Support:
 * Please post any questions or support issues at the github messenger/tracker (the "Developer Website" link to the right)
 
 Features:
-* Secure integration with KeePass using the KeePassHttp plugin (https://github.com/pfn/keepasshttp/ download from https://passifox.appspot.com/KeePassHttp.plgx)
+* Secure integration with KeePass using the KeePassHttp plugin (https://github.com/alan-null/keepasshttp/ download from https://github.com/alan-null/keepasshttp/releases)
 * Automated password form fill
 * Support for multiple logins at a single site (intuitive pageAction-based workflow)
 * Context menu entries for manually selecting username and password fields to fill
 * Notifications are always displayed whenever passwords are retrieved from KeePass, in some instances it is even possible to deny and allow access. (When the host names do not match exactly, user interaction is required to allow access; the decision can be remembered).
-* Open source, available for inspection at https://github.com/pfn/passifox
+* Open source, available for inspection at https://github.com/alan-null/chromeIPass
 * Also supported on Firefox4: use the same KeePass database for Google Chrome and Firefox
 
 Future features and enhancements:
@@ -33,7 +33,7 @@ Future features and enhancements:
 
 Requirements:
 * KeePass 2 (http://keepass.info) version 2.17 or newer
-* KeePassHttp (https://github.com/pfn/keepasshttp/ download at https://passifox.appspot.com/KeePassHttp.plgx)
+* KeePassHttp (https://github.com/alan-null/keepasshttp/ download at https://github.com/alan-null/keepasshttp/releases)
 
 Directions:
 1) Install KeePass
@@ -48,7 +48,7 @@ Directions:
 8) If you are ever lost, click on the KeePass icon in the URL bar and it will let you know status as well as any available options.
 
 Linux and Mac users:
-If you are using KeePass with Mono, then you're in luck.  I have tested KeePassHttp with Mono 2.6.7 and it appears to work well.  I cannot get the plgx file to work on Linux, perhaps you may have more luck, but I can get my dll files to work directly when put into the KeePass directory (possibly the Plugin directory as well, I have not tried).  You can get KeePassHttp.dll and Newtonsoft.Json.dll from https://github.com/pfn/keepasshttp/tree/master/KeePassHttp
+If you are using KeePass with Mono, then you're in luck.  I have tested KeePassHttp with Mono 2.6.7 and it appears to work well.  I cannot get the plgx file to work on Linux, perhaps you may have more luck, but I can get my dll files to work directly when put into the KeePass directory (possibly the Plugin directory as well, I have not tried).  You can get KeePassHttp.dll and Newtonsoft.Json.dll from https://github.com/alan-null/keepasshttp/tree/master/KeePassHttp
 
 Windows users:
 If the PLGX file does not work, it is possible to use the DLL files as mentioned above for Linux and Mac users. The above DLLs are universal binaries and work cross-platform.
