@@ -436,7 +436,7 @@ cipPassword.callbackGeneratedPassword = function (entries) {
 	}
 	else {
 		if (cIPJQ("div#cip-genpw-error:first").length == 0) {
-			cIPJQ("button#cip-genpw-btn-generate:first").after("<div style='block' id='cip-genpw-error'>Cannot receive generated password.<br />Is your version of KeePassHttp up-to-date?<br /><br /><a href='https://github.com/pfn/keepasshttp/'>Please visit the KeePassHttp homepage</a></div>");
+			cIPJQ("button#cip-genpw-btn-generate:first").after("<div style='block' id='cip-genpw-error'>Cannot receive generated password.<br />Is your version of KeePassHttp up-to-date?<br /><br /><a href='https://github.com/alan-null/keepasshttp/'>Please visit the KeePassHttp homepage</a></div>");
 			cIPJQ("input#cip-genpw-textfield-password:first").parent().hide();
 			cIPJQ("input#cip-genpw-checkbox-next-field:first").parent("label").hide();
 			cIPJQ("button#cip-genpw-btn-generate").hide();

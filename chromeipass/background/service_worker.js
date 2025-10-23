@@ -193,8 +193,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 return true;
             }
             case 'update_available_keepasshttp': {
-                // TODO: Hardcoded response. No point to check version for now.
-                return true;
+                sendResponse(keepass.keePassHttpUpdateAvailable());
             }
             case 'alert': {
                 console.log('[chromeIPass alert]', (msg.args && msg.args[0]) || '');

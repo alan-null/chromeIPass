@@ -7,7 +7,7 @@ keepass.isEncryptionKeyUnrecognized = false;
 keepass.currentKeePassHttp = { "version": 0, "versionParsed": 0 };
 keepass.keySize = 8; // wtf? stupid cryptoHelpers
 keepass.pluginUrlDefault = "http://localhost:19455/";
-keepass.latestVersionUrl = "https://passifox.appspot.com/kph/latest-version.txt";
+keepass.latestVersionUrl = "https://raw.githubusercontent.com/alan-null/keepasshttp/refs/heads/master/latest-version.txt";
 keepass.cacheTimeout = 30 * 1000; // milliseconds
 keepass.databaseHash = "no-hash"; //no-hash = keepasshttp is too old and does not return a hash value
 keepass.keyId = "chromeipass-cryptokey-name";
