@@ -1,0 +1,61 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (fetch full history + tags on master)
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Read version from manifest
+        id: vars
+        run: |
+          VERSION=$(jq -r '.version' chromeipass/manifest.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Tag will be: v$VERSION"
+
+      - name: Fail if tag already exists
+        run: |
+          TAG="v${{ steps.vars.outputs.version }}"
+          # Ensure remote tags are visible (fetch in case)
+          git fetch --tags --quiet
+          if git show-ref --tags --quiet --verify "refs/tags/$TAG"; then
+            echo "Tag $TAG already exists locally."
+            exit 1
+          fi
+          if git ls-remote --exit-code origin "refs/tags/$TAG" > /dev/null 2>&1; then
+            echo "Tag $TAG already exists on remote."
+            exit 1
+          fi
+          echo "Tag $TAG does not exist. Proceeding."
+
+      - name: Create tag on master
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+
+      - name: Package extension
+        run: |
+          VERSION="${{ steps.vars.outputs.version }}"
+          zip -r "chromeIPass-$VERSION.zip" chromeipass
+
+      - name: Create release and upload asset
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.vars.outputs.version }}
+          name: chromeIPass v${{ steps.vars.outputs.version }}
+          target_commitish: master
+          files: chromeIPass-${{ steps.vars.outputs.version }}.zip
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
