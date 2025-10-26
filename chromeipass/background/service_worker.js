@@ -194,11 +194,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
             }
             case 'update_available_keepasshttp': {
                 sendResponse(keepass.keePassHttpUpdateAvailable());
-            }
-            case 'alert': {
-                console.log('[chromeIPass alert]', (msg.args && msg.args[0]) || '');
-                sendResponse({ ok: true });
-                return;
+                return true;
             }
             case 'get_tab_information': {
                 return withTab(t => {

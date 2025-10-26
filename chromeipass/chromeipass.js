@@ -424,7 +424,6 @@ cipPassword.callbackPasswordCopied = function (success) {
 
 cipPassword.callbackGeneratedPassword = function (entries) {
 	if (entries && entries.length >= 1) {
-		console.log(entries[0]);
 		cIPJQ("#cip-genpw-btn-clipboard:first").removeClass("b2c-btn-success");
 		cIPJQ("input#cip-genpw-textfield-password:first").val(entries[0].Password);
 		if (isNaN(entries[0].Login)) {
@@ -1143,6 +1142,15 @@ cip.init = function () {
 	});
 }
 
+
+cip.alert = function (message) {
+	if (cip.settings && cip.settings.supressAlerts) {
+		console.log('[chromeIPass alert]', message);
+	} else {
+		alert(message);
+	}
+}
+
 cip.initCredentialFields = function (forceCall) {
 	if (_called.initCredentialFields && !forceCall) {
 		return;
@@ -1386,10 +1394,7 @@ cip.fillInFromActiveElementPassOnly = function (suppressWarnings) {
 
 	if (!_f(combination.password)) {
 		var message = "Unable to find a password field";
-		chrome.runtime.sendMessage({
-			action: 'alert',
-			args: [message]
-		});
+		cip.alert(message);
 		return;
 	}
 
@@ -1454,10 +1459,7 @@ cip.fillIn = function (combination, onlyPassword, suppressWarnings) {
 	// no credentials available
 	if (cip.credentials.length == 0 && !suppressWarnings) {
 		var message = "No logins found.";
-		chrome.runtime.sendMessage({
-			action: 'alert',
-			args: [message]
-		});
+		cip.alert(message);
 		return;
 	}
 
@@ -1487,10 +1489,7 @@ cip.fillIn = function (combination, onlyPassword, suppressWarnings) {
 		if (!filledIn) {
 			if (!suppressWarnings) {
 				var message = "Error #101\nCannot find fields to fill in.";
-				chrome.runtime.sendMessage({
-					action: 'alert',
-					args: [message]
-				});
+				cip.alert(message);
 			}
 		}
 	}
@@ -1517,10 +1516,7 @@ cip.fillIn = function (combination, onlyPassword, suppressWarnings) {
 		if (!filledIn) {
 			if (!suppressWarnings) {
 				var message = "Error #102\nCannot find fields to fill in.";
-				chrome.runtime.sendMessage({
-					action: 'alert',
-					args: [message]
-				});
+				cip.alert(message);
 			}
 		}
 	}
@@ -1571,19 +1567,13 @@ cip.fillIn = function (combination, onlyPassword, suppressWarnings) {
 				if (!suppressWarnings) {
 					var message = "Error #105\nMore than one login was found in KeePass!\n" +
 						"Press the chromeIPass icon for more options.";
-					chrome.runtime.sendMessage({
-						action: 'alert',
-						args: [message]
-					});
+					cip.alert(message);
 				}
 			}
 			else if (countPasswords < 1) {
 				if (!suppressWarnings) {
 					var message = "Error #103\nNo credentials for given username found.";
-					chrome.runtime.sendMessage({
-						action: 'alert',
-						args: [message]
-					});
+					cip.alert(message);
 				}
 			}
 		}
@@ -1591,10 +1581,7 @@ cip.fillIn = function (combination, onlyPassword, suppressWarnings) {
 			if (!suppressWarnings) {
 				var message = "Error #104\nMore than one login was found in KeePass!\n" +
 					"Press the chromeIPass icon for more options.";
-				chrome.runtime.sendMessage({
-					action: 'alert',
-					args: [message]
-				});
+				cip.alert(message);
 			}
 		}
 	}
