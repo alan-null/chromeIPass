@@ -5,6 +5,7 @@ page.tabs = {};
 
 page.currentTabId = -1;
 page.settings = (typeof (localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
+const SETTINGS_BOOL_KEYS = ["autoCompleteUsernames", "autoFillAndSend", "usePasswordGenerator", "autoFillSingleEntry", "autoRetrieveCredentials"];
 page.blockedTabs = {};
 
 page.initSettings = function () {
@@ -12,33 +13,28 @@ page.initSettings = function () {
 		try {
 			page.settings = data.settings ? JSON.parse(data.settings) : {};
 		} catch (_) { page.settings = {}; }
-	});
 
-	if (!("checkUpdateKeePassHttp" in page.settings)) {
-		page.settings.checkUpdateKeePassHttp = 3;
-	}
-	if (!("autoCompleteUsernames" in page.settings)) {
-		page.settings.autoCompleteUsernames = 1;
-	}
-	if (!("autoFillAndSend" in page.settings)) {
-		page.settings.autoFillAndSend = 1;
-	}
-	if (!("usePasswordGenerator" in page.settings)) {
-		page.settings.usePasswordGenerator = 1;
-	}
-	if (!("autoFillSingleEntry" in page.settings)) {
-		page.settings.autoFillSingleEntry = 1;
-	}
-	if (!("autoRetrieveCredentials" in page.settings)) {
-		page.settings.autoRetrieveCredentials = 1;
-	}
-	if (!("hostname" in page.settings)) {
-		page.settings.hostname = "localhost";
-	}
-	if (!("port" in page.settings)) {
-		page.settings.port = "19455";
-	}
-	localStorage.settings = JSON.stringify(page.settings);
+		page.normalizeBooleanFlags(page.settings);
+
+		if (!("checkUpdateKeePassHttp" in page.settings)) { page.settings.checkUpdateKeePassHttp = 3; }
+		if (!("autoCompleteUsernames" in page.settings)) { page.settings.autoCompleteUsernames = true; }
+		if (!("autoFillAndSend" in page.settings)) { page.settings.autoFillAndSend = true; }
+		if (!("usePasswordGenerator" in page.settings)) { page.settings.usePasswordGenerator = true; }
+		if (!("autoFillSingleEntry" in page.settings)) { page.settings.autoFillSingleEntry = true; }
+		if (!("autoRetrieveCredentials" in page.settings)) { page.settings.autoRetrieveCredentials = true; }
+		if (!("hostname" in page.settings)) { page.settings.hostname = "localhost"; }
+		if (!("port" in page.settings)) { page.settings.port = "19455"; }
+
+		localStorage.settings = JSON.stringify(page.settings);
+		chrome.storage.local.set({ settings: JSON.stringify(page.settings) }); // ensure persistence
+	});
+}
+
+page.normalizeBooleanFlags = function (settings) {
+	SETTINGS_BOOL_KEYS.forEach(key => {
+		if (typeof settings[key] === 'number') settings[key] = settings[key] === 1;
+	});
+	return settings;
 }
 
 page.initOpenedTabs = function () {

@@ -42,21 +42,19 @@ options.initMenu = function () {
 
 options.initGeneralSettings = function () {
 	$("#tab-general-settings input[type=checkbox]").each(function () {
-		$(this).attr("checked", options.settings[$(this).attr("name")]);
+		$(this).prop("checked", !!options.settings[$(this).attr("name")]);
 	});
 
 	$("#tab-general-settings input[type=checkbox]").change(function () {
 		options.settings[$(this).attr("name")] = $(this).is(':checked');
 		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
+		chrome.runtime.sendMessage({ action: 'load_settings' });
 	});
 
 	$("#tab-general-settings input[type=radio]").each(function () {
 		if ($(this).val() == options.settings[$(this).attr("name")]) {
-			$(this).attr("checked", options.settings[$(this).attr("name")]);
+			$(this).prop("checked", options.settings[$(this).attr("name")]);
 		}
 	});
 
@@ -75,7 +73,7 @@ options.initGeneralSettings = function () {
 
 	$("#tab-general-settings button.checkUpdateKeePassHttp:first").click(function (e) {
 		e.preventDefault();
-		$(this).attr("disabled", true);
+		$(this).prop("disabled", true);
 		chrome.runtime.sendMessage({
 			action: "check_update_keepasshttp"
 		}, options.showKeePassHttpVersions);
@@ -189,7 +187,7 @@ options.showKeePassHttpVersions = function (response) {
 
 	$("#tab-about em.versionKPH").text(response.current);
 
-	$("#tab-general-settings button.checkUpdateKeePassHttp:first").attr("disabled", false);
+	$("#tab-general-settings button.checkUpdateKeePassHttp:first").prop("disabled", false);
 }
 
 options.initConnectedDatabases = function () {
