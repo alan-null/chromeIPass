@@ -142,7 +142,13 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 return withTab(t => {
                     if (typeof browserAction !== 'undefined') {
                         if (!page.tabs[t.id]) page.tabs[t.id] = { stack: [], loginList: [], credentials: {}, errorMessage: null };
-                        page.tabs[t.id].loginList = (msg.args && msg.args[0]) ? (msg.args[0].map(u => ({ Login: u }))) : [];
+                        var stackData = {
+                            level: 1,
+                            iconType: "questionmark",
+                            popup: "popup_login.html"
+                        }
+                        browserAction.stackUnshift(stackData, t.id);
+                        page.tabs[t.id].loginList = (msg.args && msg.args[0]) ? (msg.args[0].map(u => ({ Login: u }))) : [];;
                         browserAction.show(null, t);
                     }
                     sendResponse({ ok: true });
@@ -169,20 +175,20 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 }, { ok: false });
             }
             case 'get_status': {
-                return withTab(t => {
-                    const status = {
-                        configured: keepass.isConfigured(),
-                        associated: keepass.isAssociated(),
-                        identifier: (keepass.databaseHash in keepass.keyRing)
-                            ? keepass.keyRing[keepass.databaseHash].id
-                            : null,
-                        keePassHttpAvailable: keepass.isKeePassHttpAvailable,
-                        databaseClosed: keepass.isDatabaseClosed,
-                        encryptionKeyUnrecognized: keepass.isEncryptionKeyUnrecognized,
-                        error: (t && page.tabs[t.id] && page.tabs[t.id].errorMessage) || undefined
-                    };
-                    sendResponse(status);
-                }, { configured: false, associated: false });
+                const tId = tab && tab.id;
+                const error = (tId && page.tabs[tId] && page.tabs[tId].errorMessage) || undefined;
+                sendResponse({
+                    configured: keepass.isConfigured(),
+                    associated: keepass.isAssociated(),
+                    identifier: (keepass.databaseHash in keepass.keyRing)
+                        ? keepass.keyRing[keepass.databaseHash].id
+                        : null,
+                    keePassHttpAvailable: keepass.isKeePassHttpAvailable,
+                    databaseClosed: keepass.isDatabaseClosed,
+                    encryptionKeyUnrecognized: keepass.isEncryptionKeyUnrecognized,
+                    error
+                });
+                return;
             }
             case 'check_update_keepasshttp': {
                 keepass.checkForNewKeePassHttpVersion()

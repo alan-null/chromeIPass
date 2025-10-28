@@ -29,25 +29,50 @@ function status_response(r) {
 	hide('configured-and-associated');
 	hide('configured-not-associated');
 
-
-	if (!r.keePassHttpAvailable || r.databaseClosed) {
-		setHTML('error-message', r.error);
+	// Plugin unreachable
+	if (!r.keePassHttpAvailable) {
+		setHTML('error-message', r.error || 'Cannot reach KeePassHttp. Is KeePass running?');
 		show('error-encountered');
-	} else if (!r.configured) {
-		show('not-configured');
-	} else if (r.encryptionKeyUnrecognized) {
-		show('need-reconfigure');
-		setHTML('need-reconfigure-message', r.error);
-	} else if (!r.associated) {
-		show('need-reconfigure');
-		setHTML('need-reconfigure-message', r.error);
-	} else if (typeof r.error !== 'undefined') {
-		show('error-encountered');
-		setHTML('error-message', r.error);
-	} else {
-		show('configured-and-associated');
-		setHTML('associated-identifier', r.identifier);
+		return;
 	}
+
+	// Database closed
+	if (r.databaseClosed) {
+		setHTML('error-message', r.error || 'KeePass database is closed. Open it and reload status.');
+		show('error-encountered');
+		return;
+	}
+
+	// Not configured (no key stored for current hash)
+	if (!r.configured) {
+		show('not-configured');
+		return;
+	}
+
+	// Key mismatch / encryption key lost
+	if (r.encryptionKeyUnrecognized) {
+		show('need-reconfigure');
+		setHTML('need-reconfigure-message', r.error || 'Encryption key not recognized. Please re-associate.');
+		return;
+	}
+
+	// Configured but not yet associated this session
+	if (!r.associated) {
+		show('configured-not-associated');
+		setHTML('unassociated-identifier', r.identifier);
+		return;
+	}
+
+	// Any explicit error after association
+	if (typeof r.error !== 'undefined' && r.error) {
+		show('error-encountered');
+		setHTML('error-message', r.error);
+		return;
+	}
+
+	// Success
+	show('configured-and-associated');
+	setHTML('associated-identifier', r.identifier || '(unknown)');
 }
 
 document.addEventListener('DOMContentLoaded', () => {

@@ -385,6 +385,47 @@ keepass.isAssociated = function () {
 	return !!(keepass.associated.value && keepass.associated.hash && keepass.associated.hash === keepass.databaseHash);
 };
 
+keepass.isPreAssociated = function () {
+	return (
+		keepass.databaseHash !== "no-hash" &&
+		(keepass.databaseHash in keepass.keyRing) &&
+		keepass.getCryptoKey() &&
+		!keepass.isEncryptionKeyUnrecognized &&
+		!keepass.isDatabaseClosed &&
+		keepass.isKeePassHttpAvailable
+	);
+};
+
+keepass.loadKeyRingAsync = function () {
+	return new Promise(completePromise => {
+		keepass._loadKeyRing(() => completePromise());
+	});
+};
+
+keepass.bootstrapAssociation = async function () {
+	try {
+		if (keepass.isAssociated()) {
+			return;
+		}
+		await keepass.loadKeyRingAsync();
+		await keepass._getDatabaseHashAsync(null, false);
+		if (keepass.isPreAssociated() && !keepass.isAssociated()) {
+			await keepass._testAssociationAsync(null, false);
+		}
+	} catch (e) {
+		console.log("bootstrapAssociation error", e);
+	}
+};
+
+if (chrome && chrome.runtime) {
+	try {
+		chrome.runtime.onStartup.addListener(() => keepass.bootstrapAssociation());
+		chrome.runtime.onInstalled.addListener(() => keepass.bootstrapAssociation());
+	} catch (e) {
+		console.log('bootstrapAssociation listener error', e);
+	}
+}
+
 keepass.send = function (request) {
 	// ORIGINAL synchronous keepass.send replaced (do not use directly)
 	throw new Error("keepass.send (synchronous) removed. Use keepass._sendAsync via higher level functions.");
