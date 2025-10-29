@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (tabs && tabs[0]) {
 					chrome.tabs.sendMessage(tabs[0].id, { action: "redetect_fields" });
 				}
+				window.close();
 			});
 		});
 	}

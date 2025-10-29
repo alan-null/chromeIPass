@@ -76,7 +76,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         const tab = sender.tab;
 
         // helpers
-        const async = () => true;
         const respondNoTab = (payload) => {
             try { sendResponse(payload); } catch (_) { }
         };
@@ -175,20 +174,28 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 }, { ok: false });
             }
             case 'get_status': {
-                const tId = tab && tab.id;
-                const error = (tId && page.tabs[tId] && page.tabs[tId].errorMessage) || undefined;
-                sendResponse({
-                    configured: keepass.isConfigured(),
-                    associated: keepass.isAssociated(),
-                    identifier: (keepass.databaseHash in keepass.keyRing)
-                        ? keepass.keyRing[keepass.databaseHash].id
-                        : null,
-                    keePassHttpAvailable: keepass.isKeePassHttpAvailable,
-                    databaseClosed: keepass.isDatabaseClosed,
-                    encryptionKeyUnrecognized: keepass.isEncryptionKeyUnrecognized,
-                    error
+                // Clear any stale error messages before computing status
+                if (typeof page !== 'undefined' && page.tabs) {
+                    for (const t of Object.values(page.tabs)) {
+                        if (t && 'errorMessage' in t) delete t.errorMessage;
+                    }
+                }
+                refreshStatus(async statusData => {
+                    if (!statusData.associated && statusData.configured && !statusData.databaseClosed) {
+                        // Attempt lightweight bootstrap / reassociation
+                        try {
+                            await keepass.bootstrapAssociation();
+                        } catch (e) {
+                            console.warn('Reassociation attempt failed', e);
+                        }
+                        // Refresh after attempt
+                        return refreshStatus(newStatus => {
+                            try { sendResponse(newStatus); } catch (_) { }
+                        });
+                    }
+                    try { sendResponse(statusData); } catch (_) { }
                 });
-                return;
+                return true;
             }
             case 'check_update_keepasshttp': {
                 keepass.checkForNewKeePassHttpVersion()
@@ -291,3 +298,21 @@ chrome.runtime.onInstalled.addListener(details => {
 
 // Lazy on-demand init (in case worker was cold-started)
 chrome.runtime.onStartup && chrome.runtime.onStartup.addListener(() => safeInit({ reason: 'startup' }));
+
+function buildStatus() {
+    return {
+        configured: keepass.isConfigured(),
+        associated: keepass.isAssociated(),
+        identifier: (keepass.databaseHash in keepass.keyRing)
+            ? keepass.keyRing[keepass.databaseHash].id
+            : null,
+        keePassHttpAvailable: keepass.isKeePassHttpAvailable,
+        databaseClosed: keepass.isDatabaseClosed,
+        encryptionKeyUnrecognized: keepass.isEncryptionKeyUnrecognized,
+        error: (page.tabs && Object.values(page.tabs).find(t => t.errorMessage) || {}).errorMessage
+    };
+}
+
+function refreshStatus(cb) {
+    keepass.refreshStatus(() => cb(buildStatus()));
+}

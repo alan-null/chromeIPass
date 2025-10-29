@@ -577,6 +577,13 @@ keepass.getDatabaseHash = function (tab, triggerUnlock) {
 	return keepass.databaseHash;
 };
 
+keepass.refreshStatus = function (cb) {
+	const work = keepass.isAssociated()
+		? keepass._testAssociationAsync(null, false)
+		: keepass._getDatabaseHashAsync(null, false);
+	work.finally(() => { if (cb) cb(); });
+};
+
 keepass.setVerifier = function (request, inputKey) {
 	var key = inputKey || null;
 	var id = null;
