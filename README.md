@@ -15,3 +15,8 @@ A Chrome Web Store listing will be published with the **v3** release. (Link will
 This project continues the well-known work of **[PassIFox and chromeIPass](https://github.com/alan-null/chromeIPass)** by [**Perry Nguyen**](https://github.com/pfn) and [**Lukas Schulze**](https://schulze.uno/).
 
 Thank you for creating and sharing an extension the community could use for many years for free.
+
+## Legal
+
+[![License](https://img.shields.io/badge/License-GNU-blue.svg)](LICENSE)
+[![Privacy Policy](https://img.shields.io/badge/Privacy-Policy-green.svg)](PRIVACY_POLICY.md)
