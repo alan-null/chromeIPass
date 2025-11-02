@@ -1,7 +1,7 @@
 {
   "name": "chromeIPass",
-  "version": "3.0.0",
-  "version_name": "3.0.0 alpha",
+  "version": "3.0.1",
+  "version_name": "3.0.1 alpha",
   "manifest_version": 3,
   "description": "KeePass integration for browser Chrome using KeePassHttp",
   "icons": {
