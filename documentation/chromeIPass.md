@@ -1,7 +1,7 @@
 # chromeIPass
 
 is an extension for the browser Google Chrome to send and receive credentials from KeePass(XC).
-<br />It can be downloaded from [Chrome Web Store](https://chrome.google.com/webstore/detail/chromeipass/ompiailgknfdndiefoaoiligalphfdae).
+<br />It can be downloaded from [Chrome Web Store](https://chromewebstore.google.com/detail/chromeipass/bocdfmfhfcobbagfcbimemeclglilcbk).
 
 Please read at least the section [Important information](#6-important-information).
 
@@ -73,7 +73,7 @@ It is recommended to disable the built-in Chrome password management when using 
 
 ### 2.2 Installation
 1. Your database in KeePass has to be unlocked.
-2. Go to the [Chrome Web Store](https://chrome.google.com/webstore/detail/chromeipass/ompiailgknfdndiefoaoiligalphfdae) and install the extension chromeIPass.
+2. Go to the [Chrome Web Store](https://chromewebstore.google.com/detail/chromeipass/bocdfmfhfcobbagfcbimemeclglilcbk) and install the extension chromeIPass.
 3. Now there is a new browser icon available:<br />
 ![browser-icon](https://raw.github.com/alan-null/chromeIPass/master/documentation/images/cip-browser-icon.png)
 
@@ -379,7 +379,7 @@ If this does not solve your problem, please [open an issue](https://github.com/a
 
 #### 8.2.1 First check the running versions of your software
 
-1. Check if you are using the [latest version of chromeIPass](https://chrome.google.com/webstore/detail/chromeipass/ompiailgknfdndiefoaoiligalphfdae).
+1. Check if you are using the [latest version of chromeIPass](https://chromewebstore.google.com/detail/chromeipass/bocdfmfhfcobbagfcbimemeclglilcbk).
 2. Check if your browser Google chrome is up-to-date
 3. Check if your versions of [KeePassXC](https://keepassxc.org/) OR ([KeePassHttp](https://github.com/alan-null/keepasshttp) + [KeePass](http://www.keepass.info)) are up-to-date
 
