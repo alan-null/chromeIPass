@@ -2,6 +2,8 @@
 keepass.convertKeyToKeyRing();
 // load settings
 page.initSettings();
+// start watcher for settings changes
+page.attachSettingsWatcher();
 // create tab information structure for every opened tab
 page.initOpenedTabs();
 // initial connection with KeePassHttp

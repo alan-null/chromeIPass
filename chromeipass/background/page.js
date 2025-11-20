@@ -10,23 +10,8 @@ page.blockedTabs = {};
 
 page.initSettings = function () {
 	chrome.storage.local.get(['settings'], data => {
-		try {
-			page.settings = data.settings ? JSON.parse(data.settings) : {};
-		} catch (_) { page.settings = {}; }
-
-		page.normalizeBooleanFlags(page.settings);
-
-		if (!("checkUpdateKeePassHttp" in page.settings)) { page.settings.checkUpdateKeePassHttp = 3; }
-		if (!("autoCompleteUsernames" in page.settings)) { page.settings.autoCompleteUsernames = true; }
-		if (!("autoFillAndSend" in page.settings)) { page.settings.autoFillAndSend = true; }
-		if (!("usePasswordGenerator" in page.settings)) { page.settings.usePasswordGenerator = true; }
-		if (!("autoFillSingleEntry" in page.settings)) { page.settings.autoFillSingleEntry = true; }
-		if (!("autoRetrieveCredentials" in page.settings)) { page.settings.autoRetrieveCredentials = true; }
-		if (!("hostname" in page.settings)) { page.settings.hostname = "localhost"; }
-		if (!("port" in page.settings)) { page.settings.port = "19455"; }
-
-		localStorage.settings = JSON.stringify(page.settings);
-		chrome.storage.local.set({ settings: JSON.stringify(page.settings) }); // ensure persistence
+		page.reconcileSettings(data.settings);
+		chrome.storage.local.set({ settings: JSON.stringify(page.settings) });
 	});
 }
 
@@ -132,4 +117,35 @@ page.setDebug = function (bool) {
 		page.debug = page.debugDummy;
 		return "Debug mode disabled";
 	}
+};
+
+page.applySettingsDefaults = function (s) {
+	if (!("checkUpdateKeePassHttp" in s)) s.checkUpdateKeePassHttp = 3;
+	if (!("autoCompleteUsernames" in s)) s.autoCompleteUsernames = true;
+	if (!("autoFillAndSend" in s)) s.autoFillAndSend = true;
+	if (!("usePasswordGenerator" in s)) s.usePasswordGenerator = true;
+	if (!("autoFillSingleEntry" in s)) s.autoFillSingleEntry = true;
+	if (!("autoRetrieveCredentials" in s)) s.autoRetrieveCredentials = true;
+	if (!("hostname" in s)) s.hostname = "localhost";
+	if (!("port" in s)) s.port = "19455";
+	return s;
+};
+
+page.reconcileSettings = function (raw) {
+	let parsed = {};
+	try { parsed = raw ? JSON.parse(raw) : {}; } catch (_) { parsed = {}; }
+	page.normalizeBooleanFlags(parsed);
+	page.applySettingsDefaults(parsed);
+	page.settings = parsed;
+	localStorage.settings = JSON.stringify(page.settings);
+};
+
+page.attachSettingsWatcher = function () {
+	if (page._settingsWatcherAttached) return;
+	page._settingsWatcherAttached = true;
+	chrome.storage.onChanged.addListener((changes, area) => {
+		if (area === 'local' && changes.settings) {
+			page.reconcileSettings(changes.settings.newValue);
+		}
+	});
 };
