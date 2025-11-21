@@ -1,0 +1,19 @@
+title: chromeIPass
+description: Documentation for the chromeIPass extension
+repository: dummy/dummy
+remote_theme: just-the-docs/just-the-docs
+
+plugins:
+  - jekyll-remote-theme
+
+nav_external_links:
+  - title: Latest Release
+    url: https://github.com/alan-null/chromeIPass/releases/latest
+    hide_icon: false
+    opens_in_new_tab: true
+callouts:
+  warning:
+    title: Warning
+    color: red
+  highlight:
+    color: yellow

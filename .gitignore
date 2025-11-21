@@ -5,3 +5,5 @@ chromeipass.pem
 .idea/
 scripts/*/dist/
 scripts/*/raw/
+docs/_site/
+docs/.jekyll-cache/
