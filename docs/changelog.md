@@ -8,19 +8,24 @@ toc_title: "Versions:"
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-{: .d-inline-block }
-Coming soon
-{: .label .label-yellow }
-
-### Added
-- _No changes yet._
-
-
-## [v3.0.1.0]
+## [v3.1.0.0]
 {: .d-inline-block }
 Latest
 {: .label .label-green }
+
+### Added
+
+- HTTPS support for KeePassHttp communication ([#22](https://github.com/alan-null/chromeIPass/issues/22)).
+
+    Requires [**KeepassHttp v2.2.0.0** or higher](https://alan-null.github.io/keepasshttp/changelog.html#v2200)
+- Create documentation page ([#24](https://github.com/alan-null/chromeIPass/issues/24))
+
+### Fixed
+
+- Settings not propagated to background service worker ([#23](https://github.com/alan-null/chromeIPass/issues/23))
+
+
+## [v3.0.1.0]
 
 ### Changed
 
@@ -66,7 +71,8 @@ This is the initial release of the revamped **chromeIPass** (Manifest V3), origi
 
 <!-- versions -->
 
-[unreleased]: https://github.com/alan-null/chromeIPass/compare/v3.0.1...HEAD
+[unreleased]: https://github.com/alan-null/chromeIPass/compare/v3.1.0...HEAD
+[v3.1.0.0]: https://github.com/alan-null/chromeIPass/compare/v3.0.1...v3.1.0
 [v3.0.1.0]: https://github.com/alan-null/chromeIPass/compare/v3.0.0...v3.0.1
 [v3.0.0.0]: https://github.com/alan-null/chromeIPass/compare/v2.8.1...v3.0.0
 [v1.8.4.2]: https://github.com/alan-null/keepasshttp/compare/v1.8.4.2...v1.8.4.2
