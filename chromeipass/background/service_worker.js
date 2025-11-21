@@ -62,7 +62,6 @@ importScripts(
     'init.js'
 );
 
-// UNIFIED MESSAGE ROUTER (adds missing actions)
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (blockIfNotMainFrame(sender, sendResponse)) {
         return;
@@ -95,6 +94,79 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         };
 
         switch (action) {
+            case 'test_endpoint': {
+                (async () => {
+                    const timeoutMs = 3500;
+                    function validateResponse(json) {
+                        if (typeof json !== 'object' || json === null) {
+                            return { valid: false, reason: 'entire body' };
+                        }
+                        const requiredProps = ["Version", "Hash", "RequestType", "Success"];
+                        for (const prop of requiredProps) {
+                            if (!json.hasOwnProperty(prop)) {
+                                return { valid: false, reason: 'missing field "' + prop + '"' };
+                            }
+                        }
+                        return { valid: true };
+                    }
+
+                    const url = keepass.getPluginUrl();
+                    const body = JSON.stringify({ RequestType: 'test-associate', Id: '{00000000-0000-0000-0000-000000000000}' });
+                    let timedOut = false;
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => {
+                        timedOut = true;
+                        controller.abort();
+                    }, timeoutMs);
+                    let status = 0;
+                    let raw = '';
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body,
+                            signal: controller.signal
+                        });
+                        status = res.status;
+                        raw = await res.text();
+                    } catch (e) {
+                        clearTimeout(timer);
+                        const msg = (e && e.message) ? e.message : String(e);
+                        if (timedOut) {
+                            sendResponse({ ok: true, category: 'timeout', detail: msg, timeoutMs });
+                            return true;
+                        }
+                        sendResponse({ ok: true, category: 'unreachable', detail: msg });
+                        return true;
+                    }
+                    clearTimeout(timer);
+                    if (timedOut) {
+                        sendResponse({ ok: true, category: 'timeout', detail: 'aborted', timeoutMs });
+                        return true;
+                    }
+                    if (status < 200 || status > 299) {
+                        sendResponse({ ok: true, category: 'unreachable', status, detail: 'non-2xx status' });
+                        return true;
+                    }
+                    let parsed;
+                    try { parsed = JSON.parse(raw); } catch (_) { }
+                    let validation = validateResponse(parsed);
+                    if (!validation.valid) {
+                        sendResponse({ ok: true, category: 'occupied', status, details: validation.reason });
+                        return true;
+                    }
+                    sendResponse({
+                        ok: true,
+                        category: 'success',
+                        status,
+                        version: parsed.Version || null,
+                        detail: 'reachable'
+                    });
+                    return true;
+                })();
+                return true;
+            }
+
             case 'get_settings': {
                 let settings = {};
                 try { settings = JSON.parse(localStorage.settings || '{}'); } catch { }

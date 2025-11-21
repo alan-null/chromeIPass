@@ -84,11 +84,31 @@ options.initGeneralSettings = function () {
 		$("#dangerousSettings").toggle();
 	});
 
+	$("#scheme").val(options.settings["scheme"] || "http");
 	$("#hostname").val(options.settings["hostname"]);
 	$("#port").val(options.settings["port"]);
 	$("#blinkTimeout").val(options.settings["blinkTimeout"]);
 	$("#blinkMinTimeout").val(options.settings["blinkMinTimeout"]);
 	$("#allowedRedirect").val(options.settings["allowedRedirect"]);
+
+	$("#schemeButton").click(function () {
+		var scheme = $("#scheme").val().trim();
+		if (scheme !== "http" && scheme !== "https") {
+			$("#scheme").closest(".control-group").addClass("error");
+			alert("Please select a valid scheme (http or https).\nNothing saved!");
+			return;
+		}
+
+		options.settings["scheme"] = scheme;
+		$("#scheme").closest(".control-group").removeClass("error").addClass("success");
+		setTimeout(function () { $("#scheme").closest(".control-group").removeClass("success"); }, 2500);
+
+		localStorage.settings = JSON.stringify(options.settings);
+		saveSettingsSync();
+		chrome.runtime.sendMessage({
+			action: 'load_settings'
+		});
+	});
 
 	$("#portButton").click(function () {
 		var port = $.trim($("#port").val());
@@ -171,6 +191,45 @@ options.initGeneralSettings = function () {
 		saveSettingsSync();
 		chrome.runtime.sendMessage({
 			action: 'load_settings'
+		});
+	});
+
+	$("#endpointTestButton").click(function () {
+		const btn = $(this);
+		const out = $("#endpointTestResult");
+		out.removeClass().text("Testing...");
+		btn.prop("disabled", true);
+		chrome.runtime.sendMessage({ action: 'test_endpoint' }, function (resp) {
+			btn.prop("disabled", false);
+			console.log("Endpoint test response:");
+			console.log(resp);
+			if (!resp || !resp.ok) {
+				out.removeClass().addClass("text-error").text("Test failed: " + (resp && resp.detail ? resp.detail : "unknown error"));
+				return;
+			}
+			let msg = "";
+			switch (resp.category) {
+				case 'success':
+					msg = "OK (" + (resp.status || 200) + "), Version: " + (resp.version || "n/a");
+					out.removeClass().addClass("text-success");
+					break;
+				case 'occupied':
+					msg = "Port occupied / unexpected service (status " + resp.status + ")";
+					out.removeClass().addClass("text-warning");
+					break;
+				case 'timeout':
+					msg = "Timeout after " + resp.timeoutMs + "ms";
+					out.removeClass().addClass("text-error");
+					break;
+				case 'unreachable':
+					msg = "Unreachable (status " + (resp.status || 'n/a') + ")";
+					out.removeClass().addClass("text-error");
+					break;
+				default:
+					msg = resp.category + ": " + resp.detail;
+					out.removeClass().addClass("text-error");
+			}
+			out.text(msg);
 		});
 	});
 };

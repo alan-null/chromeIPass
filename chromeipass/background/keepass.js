@@ -514,7 +514,11 @@ keepass.getIconColor = function () {
 
 keepass.getPluginUrl = function () {
 	if (page.settings.hostname && page.settings.port) {
-		return "http://" + page.settings.hostname + ":" + page.settings.port;
+		var scheme = "http";
+		if (page.settings.scheme) {
+			scheme = page.settings.scheme;
+		}
+		return scheme + "://" + page.settings.hostname + ":" + page.settings.port;
 	}
 	return keepass.pluginUrlDefault;
 }

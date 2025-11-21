@@ -268,6 +268,21 @@
 					Sometimes the default port is still in use and you have to change the port number in KeePassHTTP to get it running. So you have to set the same port number in chromeIPass and KeePassHTTP.
 				</p>
 				<p>
+					<label for="scheme">Scheme:</label>
+				<div class="control-group">
+					<div class="input-append">
+						<select id="scheme">
+							<option value="http" selected>http</option>
+							<option value="https">https</option>
+						</select>
+						<button class="btn" id="schemeButton" type="button">Save</button>
+					</div>
+					<span class="help-inline">
+						Default: http
+					</span>
+				</div>
+				</p>
+				<p>
 					<label for="hostname">Hostname:</label>
 				<div class="control-group">
 					<div class="input-append">
@@ -293,6 +308,16 @@
 						<br />
 						Default: 19455
 					</span>
+				</div>
+				</p>
+				<p>
+				<div class="control-group">
+					<div class="input-append">
+						<button class="btn" id="endpointTestButton" type="button">Test</button>
+					</div>
+					<span class="help-inline" style="margin-bottom: 5px;">
+						<div id="endpointTestResult"></div>
+						</>
 				</div>
 				</p>
 				<p>
