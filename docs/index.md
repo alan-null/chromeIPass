@@ -16,7 +16,7 @@ Extension is available on the [Chrome Web Store](https://chrome.google.com/webst
 
 ## Acknowledgements
 
-This project continues the well-known work of **[PassIFox and chromeIPass](https://github.com/alan-null/chromeIPass)** by [**Perry Nguyen**](https://github.com/pfn) and [**Lukas Schulze**](https://schulze.uno/).
+This project continues the well-known work of **[PassIFox and chromeIPass](https://github.com/pfn/passifox)** by [**Perry Nguyen**](https://github.com/pfn) and [**Lukas Schulze**](https://schulze.uno/).
 
 Thank you for creating and sharing an extension the community could use for many years for free.
 
