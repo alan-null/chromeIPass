@@ -8,6 +8,16 @@ toc_title: "Versions:"
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+{: .d-inline-block }
+Coming soon
+{: .label .label-yellow }
+
+### Added
+
+- Encrypt-then-MAC - add HMAC-SHA256 for authenticated encryption ([#26](https://github.com/alan-null/chromeIPass/issues/26)).
+
+
 ## [v3.1.0.0]
 {: .d-inline-block }
 Latest
