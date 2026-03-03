@@ -4,7 +4,6 @@ var page = {};
 page.tabs = {};
 
 page.currentTabId = -1;
-page.settings = (typeof (localStorage.settings) == 'undefined') ? {} : JSON.parse(localStorage.settings);
 const SETTINGS_BOOL_KEYS = ["autoCompleteUsernames", "autoFillAndSend", "usePasswordGenerator", "autoFillSingleEntry", "autoRetrieveCredentials"];
 page.blockedTabs = {};
 
@@ -137,7 +136,6 @@ page.reconcileSettings = function (raw) {
 	page.normalizeBooleanFlags(parsed);
 	page.applySettingsDefaults(parsed);
 	page.settings = parsed;
-	localStorage.settings = JSON.stringify(page.settings);
 };
 
 page.attachSettingsWatcher = function () {

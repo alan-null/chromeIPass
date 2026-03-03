@@ -37,6 +37,16 @@ keepass._persistKeyRing = function (cb) {
 	} catch (e) { console.warn('keyRing persist failed', e); cb && cb(e); }
 };
 
+keepass.attachKeyRingWatcher = function () {
+	if (keepass._keyRingWatcherAttached) return;
+	keepass._keyRingWatcherAttached = true;
+	chrome.storage.onChanged.addListener((changes, area) => {
+		if (area === 'local' && changes.keyRing) {
+			keepass._loadKeyRing();
+		}
+	});
+};
+
 // Load keyRing & latestKeePassHttp asynchronously at startup
 keepass._loadKeyRing();
 chrome.storage.local.get(['latestKeePassHttp'], data => {

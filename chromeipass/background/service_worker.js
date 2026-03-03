@@ -179,19 +179,6 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
                 sendResponse({ ok: true });
                 return;
             }
-            case 'load_settings': {
-                // broadcast not needed; just acknowledge
-                let settings = {};
-                try { settings = JSON.parse(localStorage.settings || '{}'); } catch { }
-                if (typeof page !== 'undefined') page.settings = settings;
-                sendResponse({ data: settings });
-                return;
-            }
-            case 'load_keyring': {
-                try { keepass.keyRing = JSON.parse(localStorage.keyRing || '{}'); } catch { keepass.keyRing = {}; }
-                sendResponse({ ok: true });
-                return;
-            }
             case 'retrieve_credentials': {
                 return withTab(t => {
                     keepass.retrieveCredentials(entries => {

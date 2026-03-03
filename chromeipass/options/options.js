@@ -47,7 +47,6 @@ options.initGeneralSettings = function () {
 
 	$("#tab-general-settings input[type=checkbox]").change(function () {
 		options.settings[$(this).attr("name")] = $(this).is(':checked');
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
 		chrome.runtime.sendMessage({ action: 'load_settings' });
 	});
@@ -60,11 +59,7 @@ options.initGeneralSettings = function () {
 
 	$("#tab-general-settings input[type=radio]").change(function () {
 		options.settings[$(this).attr("name")] = $(this).val();
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	chrome.runtime.sendMessage({
@@ -103,11 +98,7 @@ options.initGeneralSettings = function () {
 		$("#scheme").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function () { $("#scheme").closest(".control-group").removeClass("success"); }, 2500);
 
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	$("#portButton").click(function () {
@@ -123,11 +114,7 @@ options.initGeneralSettings = function () {
 		$("#port").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function () { $("#port").closest(".control-group").removeClass("success") }, 2500);
 
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	$("#hostnameButton").click(function () {
@@ -142,11 +129,7 @@ options.initGeneralSettings = function () {
 		$("#hostname").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function () { $("#hostname").closest(".control-group").removeClass("success") }, 2500);
 
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	$("#blinkTimeoutButton").click(function () {
@@ -157,11 +140,7 @@ options.initGeneralSettings = function () {
 		$("#blinkTimeout").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function () { $("#blinkTimeout").closest(".control-group").removeClass("success") }, 2500);
 
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	$("#blinkMinTimeoutButton").click(function () {
@@ -172,11 +151,7 @@ options.initGeneralSettings = function () {
 		$("#blinkMinTimeout").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function () { $("#blinkMinTimeout").closest(".control-group").removeClass("success") }, 2500);
 
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	$("#allowedRedirectButton").click(function () {
@@ -187,11 +162,7 @@ options.initGeneralSettings = function () {
 		$("#allowedRedirect").closest(".control-group").removeClass("error").addClass("success");
 		setTimeout(function () { $("#allowedRedirect").closest(".control-group").removeClass("success") }, 2500);
 
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 	});
 
 	$("#endpointTestButton").click(function () {
@@ -265,11 +236,7 @@ options.initConnectedDatabases = function () {
 		$("#tab-connected-databases #tr-cd-" + $hash).remove();
 
 		delete options.keyRing[$hash];
-		localStorage.keyRing = JSON.stringify(options.keyRing);
 		saveKeyRingSync();
-		chrome.runtime.sendMessage({
-			action: 'load_keyring'
-		});
 
 		if ($("#tab-connected-databases table tbody:first tr").length > 2) {
 			$("#tab-connected-databases table tbody:first tr.empty:first").hide();
@@ -289,11 +256,7 @@ options.initConnectedDatabases = function () {
 		$(this).parent().parent().find("a.dropdown-toggle:first").find("img:first").attr("src", "/icons/19x19/icon_normal_" + $icon + "_19x19.png");
 
 		options.keyRing[$hash].icon = $icon;
-		localStorage.keyRing = JSON.stringify(options.keyRing);
 		saveKeyRingSync();
-		chrome.runtime.sendMessage({
-			action: 'load_keyring'
-		});
 	});
 
 	var $trClone = $("#tab-connected-databases table tr.clone:first").clone(true);
@@ -345,11 +308,7 @@ options.initSpecifiedCredentialFields = function () {
 		$("#tab-specified-fields #" + $trId).remove();
 
 		delete options.settings["defined-credential-fields"][$url];
-		localStorage.settings = JSON.stringify(options.settings);
 		saveSettingsSync();
-		chrome.runtime.sendMessage({
-			action: 'load_settings'
-		});
 
 		if ($("#tab-specified-fields table tbody:first tr").length > 2) {
 			$("#tab-specified-fields table tbody:first tr.empty:first").hide();
