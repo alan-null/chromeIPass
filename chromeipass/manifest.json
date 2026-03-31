@@ -10,10 +10,6 @@
     "128": "icons/keepass_128x128.png"
   },
   "action": {
-    "default_icon": {
-      "19": "icons/19x19/icon_normal_blue_19x19.png",
-      "38": "icons/keepass_38x38.png"
-    },
     "default_title": "chromeIPass",
     "default_popup": "popups/popup.html"
   },
@@ -68,7 +64,6 @@
         "icons/key_16x16.png",
         "icons/key_24x24.png",
         "images/ui-bg_flat_0_aaaaaa_40x100.png",
-        "images/ui-bg_flat_0_aaaaaa_40x100.png",
         "images/ui-bg_flat_75_ffffff_40x100.png",
         "images/ui-bg_glass_55_fbf9ee_1x400.png",
         "images/ui-bg_glass_65_ffffff_1x400.png",
@@ -93,9 +88,6 @@
   ],
   "host_permissions": [
     "http://*/*",
-    "https://*/*",
-    "http://localhost:19455/",
-    "http://localhost/",
-    "https://raw.github.com/"
+    "https://*/*"
   ]
 }
