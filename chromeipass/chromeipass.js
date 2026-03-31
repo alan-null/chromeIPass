@@ -1700,6 +1700,11 @@ cipEvents.clearCredentials = function () {
 			}
 		}
 	}
+
+	delete _called.initCredentialFields;
+	cip.url = null;
+	cip.submitUrl = null;
+	cipFields.combinations = [];
 }
 
 cipEvents.triggerActivatedTab = function () {
