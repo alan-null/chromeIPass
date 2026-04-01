@@ -6,6 +6,9 @@ nav_order: 1
 
 ## 1. Features
 
+{: .highlight }
+chromeIPass uses **Manifest V3**, the latest Chrome extension platform. This ensures compatibility with current and future versions of Google Chrome.
+
 - secure integration with KeePass using the KeePassHttp plugin
 - receive credentials from KeePass
 - send new and updated entries to KeePass

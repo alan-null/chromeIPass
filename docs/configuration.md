@@ -38,3 +38,31 @@ All credential fields which are defined with this function are listed on this ta
 You can only remove them because it's not useful to define the fields manually.
 
 [<img src="https://raw.github.com/alan-null/chromeIPass/master/documentation/images/cip-settings-specified-credential-fields.png" alt="settings general" width="300px" />](https://raw.github.com/alan-null/chromeIPass/master/documentation/images/cip-settings-specified-credential-fields.png)
+
+### 4.4 Settings: Advanced (connection)
+
+{: .warning }
+Only change these settings if you know what you are doing.
+
+These settings are hidden by default behind the **Show these settings anyway** button on the General tab.
+
+- **Scheme** – Choose between `http` (default) and `https` for the connection to KeePassHttp. HTTPS support requires [KeePassHttp v2.2.0.0](https://alan-null.github.io/keepasshttp/changelog/#v2200) or higher.
+- **Hostname** – The hostname on which KeePassHttp is listening. Change this if KeePass runs on a remote machine. Default: `localhost`.
+- **Port** – The port on which KeePassHttp is listening. Change this if the default port is already in use. The same port must be configured in KeePassHttp. Default: `19455`.
+- **Test** – Verify that chromeIPass can reach KeePassHttp with the current scheme, hostname, and port.
+- **Suppress warnings and errors via alert** – Disables JavaScript alert dialogs for errors and warnings.
+- **Respect maxlength attribute on inputs** – Limits filled-in values to the `maxlength` set on input fields by the website.
+
+### 4.5 Settings: Experimental
+
+This tab contains opt-in features that are still being tested. All experimental features are **disabled by default** and may change or be removed in future versions.
+
+{: .note }
+Enable these to help test new behaviour and report any issues on [GitHub](https://github.com/alan-null/chromeIPass/issues).
+
+#### 🔲 Detect dynamically loaded login forms (SPA support)
+
+Some websites — particularly Single Page Applications (SPAs) such as certain banking sites — inject their login form into an initially empty page *after* the page has already loaded. In this case chromeIPass finishes its normal initialisation before the fields exist in the DOM and therefore cannot detect them.
+
+When this option is enabled, chromeIPass installs a `MutationObserver` that watches for newly added input fields. As soon as matching fields appear, credential detection is triggered automatically. The observer disconnects itself as soon as fields are successfully detected, or after 30 seconds — whichever comes first.
+
