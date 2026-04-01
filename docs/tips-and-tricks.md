@@ -12,7 +12,7 @@ If chromeIPass detects wrong credential fields choose them by yourself with the 
 
 If chromeIPass always asks to unlock the database and this is annoying you, you can simply disable this feature in the [options of KeePassHttp](https://alan-null.github.io/keepasshttp/configuration.html#settings-in-keepasshttp-options).
 
-__It's always a good idea to have a look into the options of KeePassHttp. Maybe your feature request or problem is still implemented and can be solved by changing the options.__
+__It's always a good idea to have a look into the options of KeePassHttp. Maybe your feature request or problem is already implemented and can be solved by changing the options.__
 [Go to the illustrated readme for the KeePassHttp options](https://alan-null.github.io/keepasshttp/configuration.html#settings-in-keepasshttp-options)
 
 #### Support multiple URLs for one username + password combination

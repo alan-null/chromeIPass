@@ -25,7 +25,7 @@ If there are several username + password combinations on the page the credential
 
 For all combinations of username + password fields the username field supports autocomplete for the received credentials.
 
-By clicking on an entry of the list or when the username field loose the focus it checks whether the username belongs to one of the received credentials and fills-in the password field.
+By clicking on an entry of the list or when the username field loses the focus it checks whether the username belongs to one of the received credentials and fills-in the password field.
 
 This feature is activated by default and can be disabled on the settings page of chromeIPass.
 
@@ -72,7 +72,7 @@ Once opened the generated password is stored in the field till you reload or sub
 
 Does a page contain more than one password field and you opened the dialog on the first password field, the option to fill-in the next field is enabled. If the two password fields are successive on the page, this option is also checked. Otherwise it is unchecked.
 
-If the password field has a limited length for inputted text chromeIPass will detect it and automatically cut the generated password. It will inform you about this change and copy the cutted password to your clipboard.
+If the password field has a limited length for inputted text chromeIPass will detect it and automatically cut the generated password. It will inform you about this change and copy the cut password to your clipboard.
 
 __Because chromeIPass has some [limitations](limitations) to remember credentials the password should always be copied to your clipboard.__
 
@@ -130,7 +130,7 @@ Certainly you can focus another field and use the context-menu ([3.1.3](#313-con
 
 ### 3.5 Remember passwords
 
-Because Google Chrome does not offer an API for their built-in password manager chromeIPass implements it own way of detecting new or updated credentials.
+Because Google Chrome does not offer an API for their built-in password manager chromeIPass implements its own way of detecting new or updated credentials.
 
 If chromeIPass finds a combination of username + password fields it tries to get the corresponding form for them.<br />
 For this form it registers a submit event which is called when the form is send.

@@ -8,7 +8,7 @@ nav_order: 7
 
 ### 7.1 Remember credentials
 
-Google Chrome does not offer an API to communicate with the password manager. Therefor chromeIPass implements its own way of checking for changed credentials.
+Google Chrome does not offer an API to communicate with the password manager. Therefore chromeIPass implements its own way of checking for changed credentials.
 
 On the form in which a combination of username + password fields is detected, chromeIPass registers an event which will be called when the form is submitted.
 

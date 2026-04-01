@@ -8,15 +8,15 @@ nav_order: 8
 
 __First:__ Did you read the section [5. Tips and tricks](tips-and-tricks)?
 
-__Second:__ Did you checked your [KeePassHttp options](https://alan-null.github.io/keepasshttp/configuration.html#settings-in-keepasshttp-options)? Maybe you only have to change the options...
+__Second:__ Did you check your [KeePassHttp options](https://alan-null.github.io/keepasshttp/configuration.html#settings-in-keepasshttp-options)? Maybe you only have to change the options...
 
 If you [open an issue](https://github.com/alan-null/chromeIPass/issues/) always give us at least the following information:
 
 1. chromeIPass version
 2. Google Chrome version
-2. KeePassHttp version
-3. KeePass version
-4. Pages on which the error occur
+3. KeePassHttp version
+4. KeePass version
+5. Pages on which the error occur
 
 ### 8.1 Wrong credentials are filled-in
 
