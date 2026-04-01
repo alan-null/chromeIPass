@@ -8,10 +8,26 @@ toc_title: "Versions:"
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [v3.2.0.0]
+## [v3.3.0.0]
 {: .d-inline-block }
 Latest
 {: .label .label-green }
+
+### Added
+
+- Detect dynamically loaded login forms for SPA support — experimental feature flag added to options ([#14](https://github.com/alan-null/chromeIPass/issues/14))
+
+### Fixed
+
+- Credentials re-fetched on every tab switch back to pages with hidden login forms (SPA post-login) ([#29](https://github.com/alan-null/chromeIPass/issues/29))
+
+### Changed
+
+- Remove invalid default icons and clean up manifest permissions
+
+---
+
+## [v3.2.0.0]
 
 ### Added
 
@@ -82,7 +98,8 @@ This is the initial release of the revamped **chromeIPass** (Manifest V3), origi
 
 <!-- versions -->
 
-[unreleased]: https://github.com/alan-null/chromeIPass/compare/v3.2.0...HEAD
+[unreleased]: https://github.com/alan-null/chromeIPass/compare/v3.3.0...HEAD
+[v3.3.0.0]: https://github.com/alan-null/chromeIPass/compare/v3.2.0...v3.3.0
 [v3.2.0.0]: https://github.com/alan-null/chromeIPass/compare/v3.1.0...v3.2.0
 [v3.1.0.0]: https://github.com/alan-null/chromeIPass/compare/v3.0.1...v3.1.0
 [v3.0.1.0]: https://github.com/alan-null/chromeIPass/compare/v3.0.0...v3.0.1
