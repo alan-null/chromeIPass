@@ -15,6 +15,7 @@ chrome.storage.local.get(['settings', 'keyRing'], data => {
 	// Now init UI (was previously in $(function))
 	options.initMenu();
 	options.initGeneralSettings();
+	options.initFeatureFlags();
 	options.initConnectedDatabases();
 	options.initSpecifiedCredentialFields();
 	options.initAbout();
@@ -27,6 +28,18 @@ function saveSettingsSync() {
 function saveKeyRingSync() {
 	chrome.storage.local.set({ keyRing: JSON.stringify(options.keyRing) });
 }
+
+options.initFeatureFlags = function () {
+	$("#tab-experimental input[type=checkbox]").each(function () {
+		$(this).prop("checked", !!options.settings[$(this).attr("name")]);
+	});
+
+	$("#tab-experimental input[type=checkbox]").change(function () {
+		options.settings[$(this).attr("name")] = $(this).is(':checked');
+		saveSettingsSync();
+		chrome.runtime.sendMessage({ action: 'load_settings' });
+	});
+};
 
 options.initMenu = function () {
 	$(".navbar:first ul.nav:first li a").click(function (e) {

@@ -4,7 +4,7 @@ var page = {};
 page.tabs = {};
 
 page.currentTabId = -1;
-const SETTINGS_BOOL_KEYS = ["autoCompleteUsernames", "autoFillAndSend", "usePasswordGenerator", "autoFillSingleEntry", "autoRetrieveCredentials"];
+const SETTINGS_BOOL_KEYS = ["autoCompleteUsernames", "autoFillAndSend", "usePasswordGenerator", "autoFillSingleEntry", "autoRetrieveCredentials", "detectDynamicForms"];
 page.blockedTabs = {};
 
 page.initSettings = function () {

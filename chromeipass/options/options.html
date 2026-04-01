@@ -19,7 +19,7 @@
 		/* Custom container */
 		.container {
 			margin: 0 auto;
-			max-width: 1000px;
+			max-width: 1020px;
 		}
 
 		.container>hr {
@@ -128,6 +128,7 @@
 							<li class="active"><a href="#general-settings">General</a></li>
 							<li><a href="#connected-databases">Connected Databases</a></li>
 							<li><a href="#specified-fields">Specified credential fields</a></li>
+							<li><a href="#experimental">Experimental</a></li>
 							<li><a href="#about">About</a></li>
 						</ul>
 					</div>
@@ -337,6 +338,24 @@
 					</span>
 				</p>
 			</div>
+		</div>
+
+		<!-- Experimental -->
+		<div class="tab" id="tab-experimental">
+			<h2>Experimental</h2>
+			<hr />
+			<div class="alert alert-warning">
+				<strong>These are experimental features.</strong> They are disabled by default and may change or be removed in future versions. Enable them to help test and provide feedback.
+			</div>
+			<br />
+			<p>
+				<label class="checkbox">
+					<input type="checkbox" name="detectDynamicForms" value="1" /> Detect dynamically loaded login forms (SPA support).
+				</label>
+				<span class="help-block">
+					For Single Page Applications (SPAs) that inject login fields after the initial page load (e.g. some banking sites), chromeIPass will watch for newly added input fields and automatically re-detect credentials. The observer stops after 30 seconds.
+				</span>
+			</p>
 		</div>
 
 		<!-- Connected Databases -->

@@ -1171,8 +1171,13 @@ cip.initCredentialFields = function (forceCall) {
 		chrome.runtime.sendMessage({
 			'action': 'show_default_browseraction'
 		});
+		if (cip.settings.detectDynamicForms) {
+			cip.observeDynamicFieldChanges();
+		}
 		return;
 	}
+
+	cip.stopObservingDynamicFieldChanges();
 
 	cip.url = document.location.origin;
 	cip.submitUrl = cip.getFormActionUrl(cipFields.combinations[0]);
@@ -1184,6 +1189,78 @@ cip.initCredentialFields = function (forceCall) {
 		}, cip.retrieveCredentialsCallback);
 	}
 } // end function init
+
+// MutationObserver used to detect dynamically loaded login fields (e.g. SPAs)
+cip._dynamicFieldObserver = null;
+cip._dynamicFieldObserverTimeout = null;
+
+cip.observeDynamicFieldChanges = function () {
+	// already observing
+	if (cip._dynamicFieldObserver) {
+		return;
+	}
+
+	var debounceTimer = null;
+
+	cip._dynamicFieldObserver = new MutationObserver(function (mutations) {
+		var hasRelevantChange = false;
+		var inputSelector = cipFields.inputQueryPattern;
+
+		for (var i = 0; i < mutations.length; i++) {
+			var added = mutations[i].addedNodes;
+			for (var j = 0; j < added.length; j++) {
+				var node = added[j];
+				if (node.nodeType !== Node.ELEMENT_NODE) {
+					continue;
+				}
+				if (node.matches && node.matches(inputSelector)) {
+					hasRelevantChange = true;
+					break;
+				}
+				if (node.querySelector && node.querySelector(inputSelector)) {
+					hasRelevantChange = true;
+					break;
+				}
+			}
+			if (hasRelevantChange) {
+				break;
+			}
+		}
+
+		if (!hasRelevantChange) {
+			return;
+		}
+
+		// debounce rapid mutations to avoid redundant re-inits
+		clearTimeout(debounceTimer);
+		debounceTimer = setTimeout(function () {
+			cip.stopObservingDynamicFieldChanges();
+			_called.initCredentialFields = false;
+			cip.initCredentialFields(true);
+		}, 300);
+	});
+
+	cip._dynamicFieldObserver.observe(document.body, {
+		childList: true,
+		subtree: true
+	});
+
+	// stop observing after 30 seconds to avoid indefinite overhead
+	cip._dynamicFieldObserverTimeout = setTimeout(function () {
+		cip.stopObservingDynamicFieldChanges();
+	}, 30000);
+};
+
+cip.stopObservingDynamicFieldChanges = function () {
+	if (cip._dynamicFieldObserver) {
+		cip._dynamicFieldObserver.disconnect();
+		cip._dynamicFieldObserver = null;
+	}
+	if (cip._dynamicFieldObserverTimeout) {
+		clearTimeout(cip._dynamicFieldObserverTimeout);
+		cip._dynamicFieldObserverTimeout = null;
+	}
+};
 
 cip.initPasswordGenerator = function (inputs) {
 	if (cip.settings.usePasswordGenerator) {
