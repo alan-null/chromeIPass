@@ -6,7 +6,7 @@ It relies on the [KeePassHttp](https://github.com/alan-null/keepasshttp) plugin,
 
 ## Chrome Web Store
 
-Extension is available on the [Chrome Web Store](https://chrome.google.com/webstore/detail/chromeipass/bocdfmfhfcobbagfcbimemeclglilcbk).
+Extension is available on the [Chrome Web Store](https://chromewebstore.google.com/detail/chromeipass/bocdfmfhfcobbagfcbimemeclglilcbk).
 
 Documentation is available at [https://alan-null.github.io/chromeIPass/](https://alan-null.github.io/chromeIPass/).
 

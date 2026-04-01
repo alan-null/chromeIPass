@@ -1,10 +1,10 @@
 ---
 layout: default
-title: 9. Security
-nav_order: 9
+title: 8. Security
+nav_order: 8
 ---
 
-## 9. Security
+## 8. Security
 
 - every communication with KeePass and KeePassHttp is encrypted with the symmetric version of AES in CBC-mode.
 - the messages are encrypted with a key of the length of 256bit.
